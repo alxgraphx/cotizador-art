@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Referencia interna de precios</title>
+<style>
+:root {
+  --purple-50:#EEEDFE;--purple-100:#CECBF6;--purple-200:#AFA9EC;--purple-600:#534AB7;--purple-800:#3C3489;
+  --teal-50:#E1F5EE;--teal-200:#5DCAA5;--teal-600:#0F6E56;--teal-800:#085041;
+  --coral-50:#FAECE7;--coral-200:#F0997B;--coral-600:#993C1D;--coral-800:#712B13;
+  --amber-50:#FAEEDA;--amber-200:#FAC775;--amber-600:#854F0B;--amber-800:#633806;
+  --blue-50:#E6F1FB;--blue-200:#85B7EB;--blue-600:#185FA5;--blue-800:#0C447C;
+  --green-50:#EAF3DE;--green-200:#97C459;--green-600:#3B6D11;--green-800:#27500A;
+  --gray-50:#F1EFE8;--gray-100:#D3D1C7;--gray-200:#B4B2A9;--gray-600:#5F5E5A;--gray-800:#444441;
+  --text-primary:#1a1a1a;--text-secondary:#5F5E5A;--text-tertiary:#888780;
+  --bg:#f5f4f0;--bg-card:#ffffff;--border:rgba(0,0,0,0.10);
+  --radius-sm:6px;--radius-md:8px;--radius-lg:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text-primary);font-size:14px;}
+.layout{display:grid;grid-template-columns:230px 1fr;min-height:100vh;}
+.sidebar{background:var(--bg-card);border-right:0.5px solid var(--border);padding:1.25rem 0;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.sidebar-brand{padding:0 1.25rem 1rem;border-bottom:0.5px solid var(--border);margin-bottom:0.75rem;}
+.sidebar-brand-title{font-size:13px;font-weight:500;}
+.sidebar-brand-sub{font-size:11px;color:var(--text-tertiary);margin-top:2px;}
+.badge-internal{display:inline-block;background:var(--amber-50);color:var(--amber-800);font-size:10px;font-weight:500;padding:2px 8px;border-radius:999px;margin-top:6px;}
+.nav-section{font-size:10px;color:var(--text-tertiary);padding:0.75rem 1.25rem 0.25rem;text-transform:uppercase;letter-spacing:0.06em;}
+.nav-item{display:flex;align-items:center;gap:7px;padding:6px 1.25rem;font-size:12px;color:var(--text-secondary);cursor:pointer;border-left:2px solid transparent;transition:all 0.12s;}
+.nav-item:hover{background:var(--gray-50);color:var(--text-primary);}
+.nav-item.active{border-left-color:var(--purple-600);color:var(--purple-600);background:var(--purple-50);font-weight:500;}
+.nav-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.sidebar-divider{border:none;border-top:0.5px solid var(--border);margin:0.5rem 0;}
+.main{padding:2rem 2.5rem;max-width:980px;}
+.page-header{margin-bottom:2rem;padding-bottom:1.25rem;border-bottom:0.5px solid var(--border);}
+.page-title{font-size:20px;font-weight:500;margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--text-secondary);}
+.section{margin-bottom:3rem;scroll-margin-top:1.5rem;}
+.section-header{display:flex;align-items:center;gap:10px;margin-bottom:1rem;padding-bottom:8px;border-bottom:0.5px solid var(--border);}
+.section-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.section-title{font-size:15px;font-weight:500;}
+.section-note{font-size:12px;color:var(--text-secondary);margin-top:1px;}
+.price-table{width:100%;border-collapse:collapse;}
+.price-table th{font-size:11px;font-weight:500;color:var(--text-tertiary);text-align:left;padding:5px 10px;border-bottom:0.5px solid var(--border);}
+.price-table th.r{text-align:right;}
+.price-table td{padding:8px 10px;border-bottom:0.5px solid var(--border);vertical-align:top;font-size:13px;}
+.price-table tr:last-child td{border-bottom:none;}
+.price-table tr:hover td{background:var(--gray-50);}
+.item-name{font-weight:500;}
+.item-desc{font-size:11px;color:var(--text-secondary);margin-top:2px;line-height:1.4;}
+.item-spec{font-size:10px;color:var(--text-tertiary);margin-top:3px;font-family:monospace;}
+.price-usd{font-weight:500;text-align:right;white-space:nowrap;}
+.price-mxn{font-size:11px;color:var(--text-tertiary);text-align:right;white-space:nowrap;}
+.hrs-cell{font-size:12px;color:var(--text-tertiary);text-align:right;white-space:nowrap;}
+.tag{display:inline-block;font-size:10px;font-weight:500;padding:2px 6px;border-radius:999px;margin-right:3px;}
+.tag-twitch{background:#EDE8FE;color:#4B35B8;}
+.tag-youtube{background:#FDECEA;color:#B91C1C;}
+.tag-kick{background:#E5F7EC;color:#166534;}
+.tag-all{background:var(--gray-50);color:var(--gray-600);}
+.tag-anim{background:var(--amber-50);color:var(--amber-800);}
+.tag-static{background:var(--gray-50);color:var(--gray-600);}
+.plat{display:flex;gap:3px;flex-wrap:wrap;}
+.pack-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:10px;}
+.pack-card{background:var(--bg-card);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem;}
+.pack-card.featured{border-color:var(--purple-200);border-width:1.5px;}
+.pack-name{font-size:13px;font-weight:500;margin-bottom:4px;}
+.pack-items{font-size:12px;color:var(--text-secondary);line-height:1.7;margin-bottom:10px;}
+.pack-items span{display:block;}
+.pack-items span::before{content:"· ";color:var(--purple-600);}
+.pack-price{display:flex;justify-content:space-between;align-items:baseline;border-top:0.5px solid var(--border);padding-top:8px;}
+.pack-usd{font-size:15px;font-weight:500;}
+.pack-mxn{font-size:11px;color:var(--text-secondary);}
+.pack-save{font-size:11px;color:var(--teal-600);font-weight:500;}
+.calc-wrap{display:grid;grid-template-columns:1fr 295px;gap:14px;align-items:start;}
+.calc-box{background:var(--bg-card);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;}
+.calc-search{width:100%;padding:7px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:13px;font-family:inherit;margin-bottom:10px;background:var(--gray-50);}
+.calc-search:focus{outline:none;border-color:var(--purple-200);}
+.calc-group-title{font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.05em;padding:8px 0 4px;font-weight:500;}
+.calc-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--border);font-size:12px;}
+.calc-row:last-of-type{border-bottom:none;}
+.calc-row label{color:var(--text-secondary);display:flex;align-items:center;gap:7px;cursor:pointer;flex:1;}
+.calc-row label:hover{color:var(--text-primary);}
+.calc-row input[type=checkbox]{width:13px;height:13px;cursor:pointer;accent-color:var(--purple-600);}
+.calc-price-tag{font-weight:500;white-space:nowrap;margin-left:8px;}
+.calc-summary{background:var(--bg-card);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;position:sticky;top:1.5rem;}
+.calc-summary-title{font-size:13px;font-weight:500;margin-bottom:12px;}
+.summary-items{min-height:50px;margin-bottom:12px;}
+.summary-item{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:0.5px solid var(--border);color:var(--text-secondary);}
+.summary-item:last-child{border-bottom:none;}
+.summary-empty{font-size:12px;color:var(--text-tertiary);font-style:italic;}
+.mods-title{font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.05em;margin:10px 0 6px;font-weight:500;}
+.mod-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:4px 0;}
+.mod-row label{display:flex;align-items:center;gap:6px;color:var(--text-secondary);cursor:pointer;}
+.mod-val{color:var(--coral-600);font-weight:500;font-size:11px;}
+.calc-total-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;margin-top:8px;border-top:1.5px solid var(--border);}
+.calc-total-label{font-size:13px;font-weight:500;}
+.calc-total-usd{font-size:18px;font-weight:500;color:var(--purple-600);}
+.calc-total-mxn{font-size:11px;color:var(--text-secondary);text-align:right;}
+.copy-btn{width:100%;margin-top:12px;background:var(--purple-50);color:var(--purple-800);border:0.5px solid var(--purple-200);border-radius:var(--radius-md);padding:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;}
+.copy-btn:hover{background:var(--purple-100);}
+.clear-btn{width:100%;margin-top:6px;background:transparent;color:var(--text-tertiary);border:0.5px solid var(--border);border-radius:var(--radius-md);padding:6px;font-size:11px;cursor:pointer;font-family:inherit;}
+.clear-btn:hover{color:var(--text-secondary);}
+.copied{font-size:11px;color:var(--teal-600);text-align:center;margin-top:6px;display:none;}
+.minor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:8px;}
+.minor-card{background:var(--bg-card);border:0.5px solid var(--border);border-radius:var(--radius-md);padding:0.875rem 1rem;}
+.minor-cat{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;}
+.minor-name{font-size:13px;font-weight:500;margin-bottom:3px;}
+.minor-desc{font-size:11px;color:var(--text-secondary);margin-bottom:8px;line-height:1.4;}
+.minor-footer{display:flex;justify-content:space-between;align-items:baseline;border-top:0.5px solid var(--border);padding-top:7px;}
+.minor-price{font-size:13px;font-weight:500;}
+.minor-meta{font-size:11px;color:var(--text-tertiary);}
+.consult-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px;}
+.consult-card{background:var(--bg-card);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;}
+.consult-card.highlight{border-color:var(--purple-200);background:var(--purple-50);}
+.consult-name{font-size:13px;font-weight:500;margin-bottom:4px;}
+.consult-desc{font-size:12px;color:var(--text-secondary);margin-bottom:10px;line-height:1.5;}
+.consult-includes{font-size:11px;color:var(--text-secondary);margin-bottom:10px;}
+.consult-includes span{display:block;padding:1px 0;}
+.consult-includes span::before{content:"· ";color:var(--purple-600);}
+.consult-price{font-size:15px;font-weight:500;color:var(--purple-600);}
+.consult-mxn{font-size:11px;color:var(--text-secondary);}
+.tip-box{background:var(--teal-50);border-radius:var(--radius-md);padding:0.875rem 1rem;font-size:12px;color:var(--teal-800);line-height:1.6;margin-bottom:1rem;}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-title">Referencia interna</div>
+    <div class="sidebar-brand-sub">Cotizaciones personalizadas</div>
+    <div class="badge-internal">Solo para ti</div>
+  </div>
+  <div class="nav-section">Streamers</div>
+  <a class="nav-item" onclick="goTo('overlays')"><span class="nav-dot" style="background:#534AB7"></span>Overlays y pantallas</a>
+  <a class="nav-item" onclick="goTo('alertas')"><span class="nav-dot" style="background:#534AB7"></span>Alertas y transiciones</a>
+  <a class="nav-item" onclick="goTo('canal')"><span class="nav-dot" style="background:#534AB7"></span>Canal y marca personal</a>
+  <a class="nav-item" onclick="goTo('packs')"><span class="nav-dot" style="background:#0F6E56"></span>Packs predefinidos</a>
+  
+  <hr class="sidebar-divider">
+  <div class="nav-section">Ilustración</div>
+  <a class="nav-item" onclick="goTo('ilus-niveles')"><span class="nav-dot" style="background:#993556"></span>Por nivel de acabado</a>
+  <a class="nav-item" onclick="goTo('ilus-tipos')"><span class="nav-dot" style="background:#993556"></span>Por tipo de proyecto</a>
+  <hr class="sidebar-divider">
+  <div class="nav-section">Filmmaking y foto</div>
+  <a class="nav-item" onclick="goTo('film')"><span class="nav-dot" style="background:#185FA5"></span>Filmmaking / video</a>
+  <a class="nav-item" onclick="goTo('foto')"><span class="nav-dot" style="background:#185FA5"></span>Fotografía</a>
+  <hr class="sidebar-divider">
+  <div class="nav-section">Servicios menores</div>
+  <a class="nav-item" onclick="goTo('merch')"><span class="nav-dot" style="background:#993C1D"></span>Merch y productos</a>
+  <a class="nav-item" onclick="goTo('identidad')"><span class="nav-dot" style="background:#993C1D"></span>Identidad impresa</a>
+  <a class="nav-item" onclick="goTo('digital')"><span class="nav-dot" style="background:#185FA5"></span>Presencia digital</a>
+  <a class="nav-item" onclick="goTo('editorial-minor')"><span class="nav-dot" style="background:#3B6D11"></span>Editorial</a>
+  <a class="nav-item" onclick="goTo('contenido')"><span class="nav-dot" style="background:#534AB7"></span>Infografías y contenido</a>
+  <hr class="sidebar-divider">
+<div class="nav-section">Consultoría</div>
+  <a class="nav-item" onclick="goTo('consultoria')"><span class="nav-dot" style="background:#854F0B"></span>Consultoría de marca</a>
+  <hr class="sidebar-divider">
+  <a class="nav-item" onclick="goTo('calc')"><span class="nav-dot" style="background:#854F0B"></span>Calculadora</a>
+</nav>
+
+<main class="main">
+  <div class="page-header">
+    <div class="page-title">Referencia interna de precios</div>
+    <div class="page-sub">Uso personal · Cotizaciones rápidas y personalizadas · Tarifa base: $13 USD / hr</div>
+  </div>
+
+  <div class="section" id="overlays">
+    <div class="section-header"><div class="section-dot" style="background:#534AB7"></div><div><div class="section-title">Overlays y pantallas</div><div class="section-note">Precio animado / precio estático por escena</div></div></div>
+    <table class="price-table"><thead><tr><th>Escena</th><th>Plataforma</th><th class="r">Hrs</th><th class="r">Animado USD</th><th class="r">Estático USD</th></tr></thead><tbody id="overlays-tbody"></tbody></table>
+  </div>
+
+  <div class="section" id="alertas">
+    <div class="section-header"><div class="section-dot" style="background:#534AB7"></div><div><div class="section-title">Alertas y transiciones</div><div class="section-note">WebM animado / PNG estático</div></div></div>
+    <table class="price-table"><thead><tr><th>Pieza</th><th>Tipo</th><th>Plataforma</th><th class="r">Hrs</th><th class="r">USD</th><th class="r">MXN</th></tr></thead><tbody id="alertas-tbody"></tbody></table>
+  </div>
+
+  <div class="section" id="canal">
+    <div class="section-header"><div class="section-dot" style="background:#534AB7"></div><div><div class="section-title">Canal y marca personal</div><div class="section-note">Paneles, banners, perfil, emotes, badges</div></div></div>
+    <table class="price-table"><thead><tr><th>Pieza</th><th>Plataforma</th><th class="r">Hrs</th><th class="r">USD</th><th class="r">MXN</th></tr></thead><tbody id="canal-tbody"></tbody></table>
+  </div>
+
+  <div class="section" id="packs">
+    <div class="section-header"><div class="section-dot" style="background:#0F6E56"></div><div><div class="section-title">Packs predefinidos</div><div class="section-note">Combinaciones frecuentes con descuento integrado</div></div></div>
+    <div class="pack-grid" id="pack-grid"></div>
+  </div>
+
+  <div class="section" id="calc">
+    <div class="section-header"><div class="section-dot" style="background:#854F0B"></div><div><div class="section-title">Calculadora de cotización</div><div class="section-note">Selecciona piezas de cualquier categoría</div></div></div>
+    <div class="calc-wrap">
+      <div class="calc-box">
+        <input type="text" class="calc-search" placeholder="Buscar pieza..." oninput="filterCalc(this.value)" id="calc-search">
+        <div id="calc-items"></div>
+      </div>
+      <div class="calc-summary">
+        <div class="calc-summary-title">Resumen</div>
+        <div class="summary-items" id="summary-items"><div class="summary-empty">Sin piezas seleccionadas</div></div>
+        <div class="mods-title">Modificadores</div>
+        <div class="mod-row"><label><input type="checkbox" id="mod-urgencia" onchange="recalc()"> Urgencia</label><span class="mod-val">+50%</span></div>
+        <div class="mod-row"><label><input type="checkbox" id="mod-complejidad" onchange="recalc()"> Alta complejidad</label><span class="mod-val">+30%</span></div>
+        <div class="mod-row"><label><input type="checkbox" id="mod-fuentes" onchange="recalc()"> Archivos fuente</label><span class="mod-val">+$30</span></div>
+        <div class="mod-row"><label><input type="checkbox" id="mod-comercial" onchange="recalc()"> Licencia comercial</label><span class="mod-val">+30%</span></div>
+        <div class="mod-row"><label><input type="checkbox" id="mod-exclusiva" onchange="recalc()"> Licencia exclusiva</label><span class="mod-val">+100%</span></div>
+        <div class="calc-total-row">
+          <span class="calc-total-label">Total</span>
+          <div style="text-align:right"><div class="calc-total-usd" id="total-usd">$0 USD</div><div class="calc-total-mxn" id="total-mxn">$0 MXN</div></div>
+        </div>
+        <button class="copy-btn" onclick="copySummary()">Copiar resumen ↗</button>
+        <button class="clear-btn" onclick="clearAll()">Limpiar selección</button>
+        <div class="copied" id="copied-msg">¡Copiado!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="ilus-niveles">
+    <div class="section-header"><div class="section-dot" style="background:#993556"></div><div><div class="section-title">Ilustración — por nivel de acabado</div><div class="section-note">Precio base 1 personaje · sujeto a complejidad</div></div></div>
+    <table class="price-table"><thead><tr><th>Nivel</th><th class="r">Hrs</th><th class="r">USD</th><th class="r">MXN</th></tr></thead><tbody id="ilus-niveles-tbody"></tbody></table>
+  </div>
+
+  <div class="section" id="ilus-tipos">
+    <div class="section-header"><div class="section-dot" style="background:#993556"></div><div><div class="section-title">Ilustración — por tipo de proyecto</div></div></div>
+    <table class="price-table"><thead><tr><th>Servicio</th><th class="r">Hrs</th><th class="r">USD</th><th class="r">MXN</th></tr></thead><tbody id="ilus-tipos-tbody"></tbody></table>
+  </div>
+
+  <div class="section" id="film">
+    <div class="section-header"><div class="section-dot" style="background:#185FA5"></div><div><div class="section-title">Filmmaking / video</div></div></div>
+    <table class="price-table"><thead><tr><th>Servicio</th><th class="r">Hrs</th><th class="r">USD</th><th class="r">MXN</th></tr></thead><tbody id="film-tbody"></tbody></table>
+  </div>
+
+  <div class="section" id="foto">
+    <div class="section-header"><div class="section-dot" style="background:#185FA5"></div><div><div class="section-title">Fotografía</div></div></div>
+    <table class="price-table"><thead><tr><th>Servicio</th><th class="r">Hrs</th><th class="r">USD</th><th class="r">MXN</th></tr></thead><tbody id="foto-tbody"></tbody></table>
+  </div>
+
+  <div class="section" id="merch">
+    <div class="section-header"><div class="section-dot" style="background:#993C1D"></div><div><div class="section-title">Merch y productos</div><div class="section-note">Solo diseño · coordinación de producción se cotiza aparte</div></div></div>
+    <div class="minor-grid" id="merch-grid"></div>
+  </div>
+
+  <div class="section" id="identidad">
+    <div class="section-header"><div class="section-dot" style="background:#993C1D"></div><div><div class="section-title">Identidad impresa</div></div></div>
+    <div class="minor-grid" id="identidad-grid"></div>
+  </div>
+
+  <div class="section" id="digital">
+    <div class="section-header"><div class="section-dot" style="background:#185FA5"></div><div><div class="section-title">Presencia digital</div></div></div>
+    <div class="minor-grid" id="digital-grid"></div>
+  </div>
+
+  <div class="section" id="editorial-minor">
+    <div class="section-header"><div class="section-dot" style="background:#3B6D11"></div><div><div class="section-title">Editorial</div><div class="section-note">Piezas sueltas fuera de proyectos completos</div></div></div>
+    <div class="minor-grid" id="editorial-grid"></div>
+  </div>
+
+  <div class="section" id="contenido">
+    <div class="section-header"><div class="section-dot" style="background:#534AB7"></div><div><div class="section-title">Infografías y contenido</div></div></div>
+    <div class="minor-grid" id="contenido-grid"></div>
+  </div>
+
+  <div class="section" id="consultoria">
+    <div class="section-header"><div class="section-dot" style="background:#854F0B"></div><div><div class="section-title">Consultoría de marca</div><div class="section-note">Tarifas de introducción sugeridas</div></div></div>
+    <div class="tip-box">Tip para introducirla: ofrécela primero como "revisión de marca" ($35 USD, 1 hr) al cierre de un proyecto de branding. Fácil de vender y el cliente lo percibe como valor agregado. Una vez con 2–3 recurrentes, sube a los paquetes de horas.</div>
+    <div class="consult-grid" id="consult-grid"></div>
+  </div>
+</main>
+</div>
+
+<script>
+const TC=20;
+const fu=n=>'$'+n.toLocaleString('en-US');
+const fm=n=>'$'+(n*TC).toLocaleString('es-MX')+' MXN';
+const PT={twitch:'<span class="tag tag-twitch">Twitch</span>',youtube:'<span class="tag tag-youtube">YouTube</span>',kick:'<span class="tag tag-kick">Kick</span>',all:'<span class="tag tag-all">Todas</span>'};
+const TA={anim:'<span class="tag tag-anim">Animado</span>',stat:'<span class="tag tag-static">Estático</span>'};
+
+const overlayData=[
+  {id:'ov1',name:'Intro / pantalla de inicio',      desc:'Animación de entrada al stream.',                spec:'WebM 1920×1080', hrs:5, pa:80, ps:60},
+  {id:'ov2',name:'Outro / End screen',              desc:'Cierre del stream o video.',                    spec:'WebM 1920×1080', hrs:5, pa:80, ps:60},
+  {id:'ov3',name:'Just Chatting',                   desc:'Escena para secciones de solo chat.',           spec:'PNG/WebM 1920×1080', hrs:4, pa:65, ps:50},
+  {id:'ov4',name:'Gameplay',                        desc:'Overlay principal durante partidas.',           spec:'PNG/WebM 1920×1080', hrs:6, pa:90, ps:65},
+  {id:'ov5',name:'Be Right Back (BRB)',              desc:'Pantalla de pausa / regreso.',                  spec:'WebM 1920×1080', hrs:4, pa:65, ps:50},
+  {id:'ov6',name:'Reacción / escena personalizada', desc:'Reacts, podcast, karaoke, etc.',               spec:'WebM/PNG 1920×1080', hrs:5, pa:80, ps:60},
+  {id:'ov7',name:'Marco de webcam (facecam frame)', desc:'Marco decorativo para la cámara.',             spec:'PNG transparente', hrs:3, pa:50, ps:35},
+  {id:'ov8',name:'Overlay a pedido (otro tipo)',    desc:'Cualquier escena fuera de los tipos anteriores.',spec:'Según especificación', hrs:6, pa:90, ps:65},
+];
+
+const alertasData=[
+  {id:'al1',name:'Pack alertas completo (Follow+Sub+Bits+Donation)',desc:'4 alertas principales animadas.',spec:'WebM ~600×200px',hrs:10,price:130,tipo:'anim',plat:['twitch','kick']},
+  {id:'al2',name:'Alerta individual (animada)',                     desc:'Una alerta con entrada y salida.',spec:'WebM, tamaño variable',hrs:3,price:40,tipo:'anim',plat:['twitch','kick']},
+  {id:'al3',name:'Alerta individual (estática)',                    desc:'Solo imagen, sin movimiento.',   spec:'PNG, tamaño variable',hrs:1,price:15,tipo:'stat',plat:['all']},
+  {id:'al4',name:'Stinger / transición entre escenas',             desc:'Transición animada con canal alfa.',spec:'WebM 1920×1080',hrs:5,price:65,tipo:'anim',plat:['all']},
+  {id:'al5',name:'Sound alert (gráfico del aviso)',                desc:'Solo el diseño visual del alerta.',spec:'PNG',hrs:1,price:15,tipo:'stat',plat:['twitch']},
+];
+
+const canalData=[
+  {id:'ca1',name:'Logo / marca personal',          desc:'Logotipo simple para canal y redes.',      spec:'SVG + PNG varias res.',   hrs:8, price:100,plat:['all']},
+  {id:'ca2',name:'Avatar / foto de perfil',        desc:'Imagen cuadrada de perfil.',               spec:'800×800px PNG',           hrs:3, price:40, plat:['all']},
+  {id:'ca3',name:'Banner de canal',                desc:'Portada principal del canal.',             spec:'2560×1440 / 1280×500px',  hrs:4, price:50, plat:['twitch','youtube','kick']},
+  {id:'ca4',name:'Offline screen',                desc:'Imagen cuando el canal está fuera de aire.',spec:'1920×1080px',             hrs:3, price:40, plat:['all']},
+  {id:'ca5',name:'Pack de paneles (x6)',           desc:'About, Rules, Social, Schedule, etc.',     spec:'320×100 o 320×160px',     hrs:5, price:65, plat:['twitch','kick']},
+  {id:'ca6',name:'Panel individual',              desc:'Panel adicional con estilo existente.',     spec:'320×100 o 320×160px',     hrs:1, price:13, plat:['twitch','kick']},
+  {id:'ca7',name:'Header / sección About',         desc:'Banner informativo superior del canal.',   spec:'1280×200px aprox.',       hrs:3, price:40, plat:['twitch','youtube']},
+  {id:'ca8',name:'Emote individual',              desc:'Un emote listo para subir.',               spec:'112 / 56 / 28px PNG',     hrs:2, price:25, plat:['twitch']},
+  {id:'ca9',name:'Sub badges (3 niveles)',         desc:'Insignias de suscripción por nivel.',      spec:'72 / 36 / 18px PNG',      hrs:3, price:40, plat:['twitch']},
+  {id:'ca10',name:'Bits badges (por nivel)',       desc:'Insignia por nivel de donación en bits.',  spec:'72px PNG / nivel',        hrs:2, price:25, plat:['twitch']},
+  {id:'ca11',name:'Thumbnail / miniatura',         desc:'Miniatura para VOD o video.',             spec:'1280×720px',              hrs:1, price:15, plat:['youtube']},
+  {id:'ca12',name:'Pack thumbnails (x5)',          desc:'5 miniaturas con plantilla consistente.',  spec:'1280×720px c/u',          hrs:5, price:55, plat:['youtube']},
+];
+
+const packs=[
+  {name:'Pack starter',         items:['Logo','Avatar','Banner','Paneles x6','Offline screen'],                              price:230,save:55,featured:false},
+  {name:'Pack stream completo', items:['Pack starter','Gameplay overlay animado','Alertas x4','Intro+BRB+Outro','Stinger'], price:550,save:120,featured:true},
+  {name:'Pack alertas + overlay',items:['Gameplay overlay animado','Alertas x4','Intro + BRB'],                             price:350,save:65,featured:false},
+  {name:'Pack Just Chatting',   items:['Just Chatting overlay anim.','BRB animado','Alertas x4','Marco webcam'],            price:310,save:55,featured:false},
+  {name:'Pack emotes + badges', items:['5 emotes','Sub badges 3 niveles','Bits badges básico'],                             price:170,save:35,featured:false},
+  {name:'Pack YouTube',         items:['Banner de canal','Avatar','Offline screen','Thumbnails x5','Outro animado'],        price:195,save:40,featured:false},
+  {name:'Pack rebranding total',items:['Logo','Avatar','Banner','Overlay+alertas','Paneles x6','Emotes x3','Stinger'],      price:620,save:130,featured:false},
+];
+
+const ilusNiveles=[
+  {id:'il1',name:'Boceto / sketch',              desc:'Sin color. Para aprobar poses.',              hrs:2, price:25},
+  {id:'il2',name:'Flats (color plano)',           desc:'Línea limpia + colores base, sin sombras.',  hrs:4, price:50},
+  {id:'il3',name:'Cell shading',                  desc:'Sombreado anime/cartoon, sombras duras.',   hrs:6, price:75},
+  {id:'il4',name:'Full render',                   desc:'Sombreado detallado, luces y texturas.',    hrs:12,price:150},
+  {id:'il5',name:'Fondo / background solo',       desc:'Escena sin personajes.',                    hrs:8, price:100},
+  {id:'il6',name:'Composición completa (p+f)',    desc:'Full render + fondo detallado.',            hrs:18,price:220},
+];
+
+const ilusTipos=[
+  {id:'it1',name:'Ilustración editorial',                 desc:'Para artículos, libros o medios.',         hrs:10,price:130},
+  {id:'it2',name:'Fanart (solo uso personal)',             desc:'Personajes existentes, no comercial.',    hrs:6, price:75},
+  {id:'it3',name:'Stickers digitales (x5)',               desc:'PNG transparente, digital e impresión.',  hrs:8, price:95},
+  {id:'it4',name:'Diseño de personaje + hoja de modelo',  desc:'Vista frontal, expresiones, paleta.',     hrs:14,price:180},
+  {id:'it5',name:'Concept art',                           desc:'Mundos, entornos o personajes.',          hrs:18,price:220},
+  {id:'it6',name:'Merch (diseño para producto)',           desc:'Adaptado para impresión.',               hrs:8, price:100},
+  {id:'it7',name:'Expresiones adicionales (x3)',          desc:'3 expresiones extra de personaje ya diseñado.',hrs:4,price:50},
+  {id:'it8',name:'Versión chibi de personaje existente',  desc:'Rediseño en estilo kawaii/chibi.',        hrs:5, price:65},
+  {id:'it9',name:'Hoja de referencia extra',              desc:'Para personaje ya diseñado.',             hrs:5, price:65},
+];
+
+const filmData=[
+  {id:'fi1',name:'Reel para redes (hasta 60s)',               desc:'Filmado y editado. IG, TikTok, Shorts.',       hrs:10,price:130},
+  {id:'fi2',name:'Pack de reels (x3)',                        desc:'Una sesión, 3 videos editados individualmente.',hrs:22,price:270},
+  {id:'fi3',name:'Video de producto / servicio (hasta 90s)',  desc:'Presentación con gráficos de marca.',          hrs:14,price:180},
+  {id:'fi4',name:'Contenido mensual (8 videos)',              desc:'Estrategia + 2 sesiones + 8 ediciones.',       hrs:40,price:480},
+  {id:'fi5',name:'Edición de video (hasta 5 min)',            desc:'Color + sonido + gráficos, material ya grabado.',hrs:12,price:150},
+  {id:'fi6',name:'Edición de video (hasta 15 min)',           desc:'Entrevistas, tutoriales o vlogs.',             hrs:20,price:250},
+  {id:'fi7',name:'Corrección de color (por minuto)',          desc:'Solo grading, sin edición.',                   hrs:1, price:15},
+  {id:'fi8',name:'Subtítulos / captions (hasta 10 min)',      desc:'Sincronizados y exportados.',                  hrs:3, price:35},
+  {id:'fi9',name:'Motion graphics (hasta 30s)',               desc:'Animación 2D para intro, outro o anuncio.',    hrs:16,price:200},
+];
+
+const fotoData=[
+  {id:'fo1',name:'Sesión fotográfica (hasta 2 hrs)',        desc:'30 fotos editadas entregadas.',              hrs:6, price:130},
+  {id:'fo2',name:'Sesión extendida (hasta 4 hrs)',          desc:'60 fotos editadas entregadas.',              hrs:10,price:220},
+  {id:'fo3',name:'Sesión de producto (hasta 2 hrs)',        desc:'Flat lay o lifestyle.',                      hrs:6, price:140},
+  {id:'fo4',name:'Retoque individual (por foto)',           desc:'Ajustes, piel, fondo. Precio por imagen.',  hrs:0.5,price:10},
+  {id:'fo5',name:'Retoque express (x10 fotos)',             desc:'Correcciones básicas de exposición y color.',hrs:3, price:60},
+  {id:'fo6',name:'Cambio / eliminación de fondo (por foto)',desc:'Recorte limpio y fondo nuevo o transparente.',hrs:0.5,price:8},
+  {id:'fo7',name:'Galería digital organizada',              desc:'Álbum compartido, nombrado y ordenado.',     hrs:1, price:15},
+];
+
+const merchData=[
+  {cat:'Ropa',       color:'coral',name:'Playera (frente solo)',             desc:'Listo para DTG, serigrafía o sublimación.',   price:60, hrs:3},
+  {cat:'Ropa',       color:'coral',name:'Playera (frente + espalda)',        desc:'Dos caras, archivos separados.',              price:90, hrs:5},
+  {cat:'Ropa',       color:'coral',name:'Sudadera / hoodie',                 desc:'Con guías para manga, bolsillo o capucha.',   price:100,hrs:5},
+  {cat:'Accesorio',  color:'coral',name:'Tote bag',                         desc:'Archivo para impresión o sublimación.',       price:50, hrs:2.5},
+  {cat:'Impresión',  color:'coral',name:'Print / poster (hasta A3)',        desc:'Arte en alta resolución listo para imprimir.',price:55, hrs:3},
+  {cat:'Impresión',  color:'coral',name:'Díptico impreso (doble carta)',    desc:'Diseñado para doblar e imprimir.',            price:70, hrs:4},
+  {cat:'Sticker',    color:'coral',name:'Sticker individual',               desc:'Con contorno de corte incluido.',             price:20, hrs:1},
+  {cat:'Sticker',    color:'coral',name:'Sheet de stickers (x8)',           desc:'8 diseños en una sola hoja.',                 price:120,hrs:7},
+  {cat:'Accesorio',  color:'coral',name:'Parche / patch (diseño)',          desc:'Contorno bordable o imprimible.',             price:45, hrs:2},
+  {cat:'Taza',       color:'coral',name:'Wrap para taza (11oz)',            desc:'Diseño envolvente para sublimación.',         price:35, hrs:1.5},
+  {cat:'Coordinación',color:'amber',name:'Gestión con proveedor / imprenta',desc:'Coordinación de producción con fabricante.',  price:50, hrs:3},
+];
+
+const identidadData=[
+  {cat:'Tarjeta',  color:'coral',name:'Tarjeta presentación (1 cara)', desc:'Con sangrado, listo para imprenta.',   price:35, hrs:2},
+  {cat:'Tarjeta',  color:'coral',name:'Tarjeta presentación (2 caras)',desc:'Frente y reverso, archivos separados.',price:55, hrs:3},
+  {cat:'Papelería',color:'coral',name:'Hoja membretada',               desc:'Plantilla Word + PDF.',                price:40, hrs:2},
+  {cat:'Papelería',color:'coral',name:'Sobre membretado (C4 o DL)',   desc:'Con logo y datos de contacto.',         price:30, hrs:1.5},
+  {cat:'Papelería',color:'coral',name:'Kit papelería básica',          desc:'Tarjeta + hoja + sobre.',              price:110,hrs:6},
+  {cat:'Papelería',color:'coral',name:'Carpeta / folder corporativo',  desc:'Portada y solapa interior.',           price:65, hrs:3.5},
+];
+
+const digitalData=[
+  {cat:'Ícono',   color:'blue',name:'Favicon + ícono de app',           desc:'16, 32, 64, 180px para web.',          price:25, hrs:1.5},
+  {cat:'Firma',   color:'blue',name:'Firma de correo HTML',             desc:'Responsive para Gmail, Outlook, etc.', price:40, hrs:2},
+  {cat:'Banner',  color:'blue',name:'Banner LinkedIn',                  desc:'1584×396px perfil profesional.',       price:30, hrs:1.5},
+  {cat:'Banner',  color:'blue',name:'Banner por red social',            desc:'Twitter/X, Facebook, etc.',            price:25, hrs:1},
+  {cat:'Banner',  color:'blue',name:'Kit banners x4 plataformas',       desc:'LinkedIn, X, FB, YouTube en un set.',  price:80, hrs:4},
+  {cat:'Redes',   color:'blue',name:'Kit de redes desde cero',          desc:'Avatar + banners + plantilla de post.', price:130,hrs:7},
+];
+
+const editorialData=[
+  {cat:'Portada',   color:'green',name:'Portada de libro / ebook',         desc:'Front cover profesional.',            price:90, hrs:5},
+  {cat:'Portada',   color:'green',name:'Portada de revista',               desc:'Diseño editorial con tipografía.',    price:80, hrs:4},
+  {cat:'Portada',   color:'green',name:'Portada de podcast',               desc:'Arte cuadrado para Spotify, etc.',    price:50, hrs:2.5},
+  {cat:'Plantilla', color:'green',name:'Plantilla editorial (x5 estilos)', desc:'Sistema de páginas interiores.',      price:120,hrs:7},
+  {cat:'Página',    color:'green',name:'Página interior individual',       desc:'Diseño de una página ya maquetada.',  price:20, hrs:1},
+  {cat:'Folleto',   color:'green',name:'Díptico (2 caras)',               desc:'A4 o carta, listo para imprenta.',    price:60, hrs:3},
+  {cat:'Folleto',   color:'green',name:'Tríptico (6 caras)',              desc:'3 cuerpos con sangrado y guías.',     price:90, hrs:5},
+];
+
+const contenidoData=[
+  {cat:'Infografía',   color:'purple',name:'Infografía sencilla',         desc:'Datos o proceso en visual.',           price:60, hrs:4},
+  {cat:'Infografía',   color:'purple',name:'Infografía compleja',         desc:'Ilustraciones + datos + editorial.',   price:100,hrs:7},
+  {cat:'Infografía',   color:'purple',name:'Serie infografías (x3)',      desc:'Mismo sistema visual, 3 temas.',       price:160,hrs:12},
+  {cat:'Presentación', color:'purple',name:'Plantilla de slides (x10)',   desc:'PowerPoint o Google Slides editable.', price:90, hrs:5},
+  {cat:'Presentación', color:'purple',name:'Slide individual extra',      desc:'Diseño fuera de plantilla base.',      price:15, hrs:0.75},
+  {cat:'Social',       color:'purple',name:'Carrusel informativo (x8)',   desc:'Para Instagram, LinkedIn o TikTok.',   price:80, hrs:5},
+];
+
+const consultData=[
+  {name:'Revisión de marca (1 hr)',   desc:'Diagnóstico rápido. Ideal para cerrar un proyecto de branding.',  includes:['Revisión de identidad actual','Feedback fundamentado','Lista de mejoras prioritarias'],    price:35, highlight:false},
+  {name:'Sesión consultoría (2 hrs)', desc:'Estrategia, revisión o dirección creativa en profundidad.',       includes:['Brief detallado previo','Sesión en videollamada','Documento de conclusiones'],             price:65, highlight:true},
+  {name:'Pack consultoría (4 hrs)',   desc:'Acompañamiento continuo. Horas distribuidas a tu ritmo.',         includes:['4 hrs sin fecha de vencimiento (60 días)','Documento de conclusiones incluido'],          price:120,highlight:false},
+  {name:'Auditoría visual rápida',    desc:'Análisis escrito de identidad + propuesta de mejoras. Sin sesión.',includes:['Análisis de logo, tipografía y paleta','Revisión de aplicaciones digitales','Reporte PDF'],price:50, highlight:false},
+  {name:'Retainer mensual (8 hrs)',   desc:'8 hrs distribuidas en el mes. Ideal para clientes recurrentes.',  includes:['Prioridad de agenda','Descuento 15% en servicios ese mes'],                               price:200,highlight:false},
+];
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function pRow(name,desc,spec,hrs,usd){
+  return `<tr><td><div class="item-name">${name}</div><div class="item-desc">${desc}</div>${spec?`<div class="item-spec">${spec}</div>`:''}</td><td class="hrs-cell">~${hrs}h</td><td class="price-usd">${fu(usd)}</td><td class="price-mxn">${fm(usd)}</td></tr>`;
+}
+
+const ot=document.getElementById('overlays-tbody');
+overlayData.forEach(o=>{
+  const platH=(['all']).map(p=>PT[p]).join('');
+  ot.innerHTML+=`<tr>
+    <td><div class="item-name">${o.name}</div><div class="item-desc">${o.desc}</div><div class="item-spec">${o.spec}</div></td>
+    <td><div class="plat">${PT.all}</div></td>
+    <td class="hrs-cell">~${o.hrs}h</td>
+    <td class="price-usd">${fu(o.pa)} <span style="font-size:10px;color:var(--text-tertiary)">anim.</span></td>
+    <td class="price-usd">${fu(o.ps)} <span style="font-size:10px;color:var(--text-tertiary)">est.</span></td>
+  </tr>`;
+});
+
+const alT=document.getElementById('alertas-tbody');
+alertasData.forEach(a=>{
+  const platH=a.plat.map(p=>PT[p]).join('');
+  alT.innerHTML+=`<tr><td><div class="item-name">${a.name}</div><div class="item-desc">${a.desc}</div><div class="item-spec">${a.spec}</div></td><td>${TA[a.tipo]}</td><td><div class="plat">${platH}</div></td><td class="hrs-cell">~${a.hrs}h</td><td class="price-usd">${fu(a.price)}</td><td class="price-mxn">${fm(a.price)}</td></tr>`;
+});
+
+const cT=document.getElementById('canal-tbody');
+canalData.forEach(c=>{
+  const platH=c.plat.map(p=>PT[p]).join('');
+  cT.innerHTML+=`<tr><td><div class="item-name">${c.name}</div><div class="item-desc">${c.desc}</div><div class="item-spec">${c.spec}</div></td><td><div class="plat">${platH}</div></td><td class="hrs-cell">~${c.hrs}h</td><td class="price-usd">${fu(c.price)}</td><td class="price-mxn">${fm(c.price)}</td></tr>`;
+});
+
+const pg=document.getElementById('pack-grid');
+packs.forEach(pk=>{
+  pg.innerHTML+=`<div class="pack-card${pk.featured?' featured':''}"><div class="pack-name">${pk.name}</div><div class="pack-items">${pk.items.map(i=>`<span>${i}</span>`).join('')}</div><div class="pack-price"><div><div class="pack-usd">${fu(pk.price)} USD</div><div class="pack-mxn">${fm(pk.price)}</div></div><div class="pack-save">~$${pk.save} ahorro</div></div></div>`;
+});
+
+[['ilus-niveles-tbody',ilusNiveles],['ilus-tipos-tbody',ilusTipos],['film-tbody',filmData],['foto-tbody',fotoData]].forEach(([id,data])=>{
+  const t=document.getElementById(id);
+  data.forEach(i=>{ t.innerHTML+=pRow(i.name,i.desc||'','',i.hrs,i.price); });
+});
+
+const cmap={coral:{cat:'var(--coral-600)',price:'var(--coral-600)'},amber:{cat:'var(--amber-600)',price:'var(--amber-600)'},blue:{cat:'var(--blue-600)',price:'var(--blue-600)'},green:{cat:'var(--green-600)',price:'var(--green-600)'},purple:{cat:'var(--purple-600)',price:'var(--purple-600)'}};
+function renderCards(data,id){
+  const c=document.getElementById(id);
+  data.forEach(d=>{
+    const col=cmap[d.color];
+    c.innerHTML+=`<div class="minor-card"><div class="minor-cat" style="color:${col.cat}">${d.cat}</div><div class="minor-name">${d.name}</div><div class="minor-desc">${d.desc}</div><div class="minor-footer"><div><div class="minor-price" style="color:${col.price}">${fu(d.price)} USD</div><div class="minor-meta">${fm(d.price)}</div></div><div class="minor-meta">~${d.hrs}h</div></div></div>`;
+  });
+}
+renderCards(merchData,'merch-grid');
+renderCards(identidadData,'identidad-grid');
+renderCards(digitalData,'digital-grid');
+renderCards(editorialData,'editorial-grid');
+renderCards(contenidoData,'contenido-grid');
+
+const cg=document.getElementById('consult-grid');
+consultData.forEach(c=>{
+  cg.innerHTML+=`<div class="consult-card${c.highlight?' highlight':''}"><div class="consult-name">${c.name}</div><div class="consult-desc">${c.desc}</div><div class="consult-includes">${c.includes.map(i=>`<span>${i}</span>`).join('')}</div><div class="consult-price">${fu(c.price)} USD</div><div class="consult-mxn">${fm(c.price)}</div></div>`;
+});
+
+// ── CALCULADORA ───────────────────────────────────────────────────────────────
+const allCalcGroups=[
+  {g:'Overlays (animado)',   items:overlayData.map(o=>({id:o.id+'a',name:o.name+' — animado',price:o.pa}))},
+  {g:'Overlays (estático)',  items:overlayData.map(o=>({id:o.id+'s',name:o.name+' — estático',price:o.ps}))},
+  {g:'Alertas',              items:alertasData.map(a=>({id:a.id,name:a.name,price:a.price}))},
+  {g:'Canal y marca',        items:canalData.map(c=>({id:c.id,name:c.name,price:c.price}))},
+  {g:'Ilustración — nivel',  items:ilusNiveles.map(i=>({id:i.id,name:i.name,price:i.price}))},
+  {g:'Ilustración — tipo',   items:ilusTipos.map(i=>({id:i.id,name:i.name,price:i.price}))},
+  {g:'Filmmaking',           items:filmData.map(i=>({id:i.id,name:i.name,price:i.price}))},
+  {g:'Fotografía',           items:fotoData.map(i=>({id:i.id,name:i.name,price:i.price}))},
+  {g:'Merch',                items:merchData.map((i,n)=>({id:'mc'+n,name:i.name,price:i.price}))},
+  {g:'Identidad impresa',    items:identidadData.map((i,n)=>({id:'id'+n,name:i.name,price:i.price}))},
+  {g:'Presencia digital',    items:digitalData.map((i,n)=>({id:'dg'+n,name:i.name,price:i.price}))},
+  {g:'Editorial',            items:editorialData.map((i,n)=>({id:'ed'+n,name:i.name,price:i.price}))},
+  {g:'Infografías y contenido',items:contenidoData.map((i,n)=>({id:'cn'+n,name:i.name,price:i.price}))},
+  {g:'Consultoría',          items:consultData.map((i,n)=>({id:'co'+n,name:i.name,price:i.price}))},
+];
+
+const checkedState={};
+
+function buildCalc(filter){
+  const el=document.getElementById('calc-items');
+  el.innerHTML='';
+  allCalcGroups.forEach(group=>{
+    const filtered=group.items.filter(i=>!filter||i.name.toLowerCase().includes(filter.toLowerCase()));
+    if(!filtered.length)return;
+    el.innerHTML+=`<div class="calc-group-title">${group.g}</div>`;
+    filtered.forEach(item=>{
+      el.innerHTML+=`<div class="calc-row"><label><input type="checkbox" id="cb-${item.id}" data-price="${item.price}" data-name="${item.name}" onchange="saveCheck('${item.id}',this.checked);recalc()" ${checkedState[item.id]?'checked':''}> ${item.name}</label><span class="calc-price-tag">${fu(item.price)}</span></div>`;
+    });
+  });
+}
+
+function saveCheck(id,val){checkedState[id]=val;}
+
+function filterCalc(v){buildCalc(v);}
+
+buildCalc('');
+
+function recalc(){
+  let base=0;const sel=[];
+  allCalcGroups.forEach(g=>g.items.forEach(i=>{
+    if(checkedState[i.id]){base+=i.price;sel.push({name:i.name,price:i.price});}
+  }));
+  let mult=1;
+  if(document.getElementById('mod-urgencia').checked)mult+=0.5;
+  if(document.getElementById('mod-complejidad').checked)mult+=0.3;
+  if(document.getElementById('mod-comercial').checked)mult+=0.3;
+  if(document.getElementById('mod-exclusiva').checked)mult+=1.0;
+  let total=Math.round(base*mult);
+  if(document.getElementById('mod-fuentes').checked)total+=30;
+  const si=document.getElementById('summary-items');
+  si.innerHTML=sel.length?sel.map(s=>`<div class="summary-item"><span>${s.name}</span><span>${fu(s.price)}</span></div>`).join(''):'<div class="summary-empty">Sin piezas seleccionadas</div>';
+  document.getElementById('total-usd').textContent=fu(total)+' USD';
+  document.getElementById('total-mxn').textContent=fm(total);
+}
+
+function clearAll(){
+  Object.keys(checkedState).forEach(k=>delete checkedState[k]);
+  ['mod-urgencia','mod-complejidad','mod-fuentes','mod-comercial','mod-exclusiva'].forEach(id=>document.getElementById(id).checked=false);
+  document.getElementById('calc-search').value='';
+  buildCalc('');recalc();
+}
+
+function copySummary(){
+  const sel=[];
+  allCalcGroups.forEach(g=>g.items.forEach(i=>{if(checkedState[i.id])sel.push('· '+i.name+' — '+fu(i.price)+' USD');}));
+  if(!sel.length){alert('Selecciona al menos una pieza.');return;}
+  const mods=[];
+  if(document.getElementById('mod-urgencia').checked)mods.push('· Urgencia +50%');
+  if(document.getElementById('mod-complejidad').checked)mods.push('· Alta complejidad +30%');
+  if(document.getElementById('mod-fuentes').checked)mods.push('· Archivos fuente +$30 USD');
+  if(document.getElementById('mod-comercial').checked)mods.push('· Licencia comercial +30%');
+  if(document.getElementById('mod-exclusiva').checked)mods.push('· Licencia exclusiva +100%');
+  const t=document.getElementById('total-usd').textContent;
+  const tm=document.getElementById('total-mxn').textContent;
+  const lines=['COTIZACIÓN\n',...sel,...(mods.length?['\nModificadores:',...mods]:[]),'\nTOTAL: '+t+' / '+tm,'\n*Incluye 2 revisiones. Precios de referencia, sujetos a ajuste.'];
+  navigator.clipboard.writeText(lines.join('\n')).then(()=>{
+    const m=document.getElementById('copied-msg');m.style.display='block';setTimeout(()=>m.style.display='none',2000);
+  });
+}
+
+function goTo(id){
+  document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+window.addEventListener('scroll',()=>{
+  const ids=['overlays','alertas','canal','packs','calc','ilus-niveles','ilus-tipos','film','foto','merch','identidad','digital','editorial-minor','contenido','consultoria'];
+  let cur=ids[0];
+  ids.forEach(id=>{const el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<=100)cur=id;});
+  document.querySelectorAll('.nav-item').forEach(n=>{n.classList.toggle('active',n.getAttribute('onclick')?.includes("'"+cur+"'"));});
+},{passive:true});
+</script>
+</body>
+</html>
