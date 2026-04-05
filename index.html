@@ -4,58 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Catálogo de Servicios Creativos — Versión Actual</title>
-<style>
-  :root {
-    --purple-50: #EEEDFE; --purple-200: #AFA9EC; --purple-600: #534AB7; --purple-800: #3C3489;
-    --teal-50: #E1F5EE; --teal-200: #5DCAA5; --teal-800: #085041;
-    --amber-50: #FAEEDA; --amber-800: #633806;
-    --text-primary: #1a1a1a; --text-secondary: #5F5E5A; --text-tertiary: #888780;
-    --bg-primary: #ffffff; --bg-secondary: #F1EFE8;
-    --border: rgba(0,0,0,0.12); --radius-md: 8px; --radius-lg: 12px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: var(--text-primary); background: #fafaf8; font-size: 15px; line-height: 1.6; }
-  .page { max-width: 960px; margin: 0 auto; padding: 3rem 2rem; }
-  .header { text-align: center; margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 0.5px solid var(--border); }
-  .header h1 { font-size: 32px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; }
-  .header p { font-size: 16px; color: var(--text-secondary); margin-bottom: 16px; }
-  .badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
-  .badge { display: inline-block; font-size: 13px; font-weight: 500; padding: 7px 18px; border-radius: 999px; }
-  .badge-rate { background: var(--purple-50); color: var(--purple-800); border: 1px solid var(--purple-200); }
-  .badge-note { background: var(--teal-50); color: var(--teal-800); border: 1px solid var(--teal-200); font-size: 12px; }
-  .section { margin-bottom: 3rem; }
-  .section-title { font-size: 18px; font-weight: 500; color: var(--text-primary); margin-bottom: 1.25rem; padding-bottom: 10px; border-bottom: 0.5px solid var(--border); }
-  .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-  .service-card { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; display: flex; flex-direction: column; }
-  .service-card.featured { border: 2px solid var(--purple-200); }
-  .service-name { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
-  .service-cat { font-size: 11px; color: var(--purple-600); background: var(--purple-50); display: inline-block; padding: 3px 10px; border-radius: 999px; margin-bottom: 10px; font-weight: 500; }
-  .service-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.5; flex-grow: 1; }
-  .includes { font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; }
-  .includes li { padding: 2px 0; list-style: none; padding-left: 14px; position: relative; }
-  .includes li::before { content: "·"; position: absolute; left: 0; color: var(--purple-600); font-weight: 700; }
-  .price-row { display: flex; justify-content: space-between; align-items: flex-end; border-top: 0.5px solid var(--border); padding-top: 12px; }
-  .price-usd { font-size: 18px; font-weight: 500; color: var(--text-primary); }
-  .price-mxn { font-size: 13px; color: var(--text-secondary); }
-  .hrs-tag { font-size: 12px; color: var(--text-tertiary); background: var(--bg-secondary); padding: 3px 10px; border-radius: 999px; }
-  .extras-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
-  .extra-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 1rem; }
-  .extra-name { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
-  .extra-price { font-size: 13px; color: var(--purple-600); font-weight: 500; margin-bottom: 4px; }
-  .extra-desc { font-size: 12px; color: var(--text-secondary); }
-  .note-box { background: var(--amber-50); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; font-size: 13px; color: var(--amber-800); line-height: 1.7; }
-  .restrict-box { background: #FCEBEB; border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-top: 1rem; }
-  .restrict-title { font-size: 13px; font-weight: 500; color: #791F1F; margin-bottom: 10px; }
-  .restrict-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-  .restrict-tag { font-size: 12px; color: #A32D2D; background: #F7C1C1; padding: 4px 12px; border-radius: 999px; }
-  .restrict-note { font-size: 12px; color: #791F1F; margin-top: 10px; line-height: 1.6; }
-  .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1.25rem; }
-  .filter-btn { font-size: 12px; padding: 5px 14px; border: 0.5px solid var(--border); border-radius: 999px; background: transparent; color: var(--text-secondary); cursor: pointer; font-family: inherit; }
-  .filter-btn.active, .filter-btn:hover { background: var(--purple-50); color: var(--purple-800); border-color: var(--purple-200); }
-  .view-switch { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 100; background: var(--bg-primary); border: 1px solid var(--border); padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: all 0.2s; }
-  .view-switch:hover { background: var(--purple-600); color: white; border-color: var(--purple-600); transform: translateY(-2px); }
-  @media print { .filter-bar, .view-switch { display: none; } .services-grid { grid-template-columns: repeat(2, 1fr); } }
-</style>
+	
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@100..900&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+	
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="page">
@@ -179,16 +135,18 @@ function renderServices() {
   }
 
   grid.innerHTML = filtered.map(s => {
-    const p = getPrice(s.hrs);
+  const p = (typeof s.price === "number")
+    ? s.price
+    : getPrice(s.hrs);
     return `
     <div class="service-card${s.featured ? ' featured' : ''}">
+	  <div class="service-name">${s.name}</div>
       <span class="service-cat">${DB.categories[s.cat] || s.cat}</span>
-      <div class="service-name">${s.name}</div>
       <div class="service-desc">${s.desc || ''}</div>
       ${s.includes ? `<ul class="includes">${s.includes.map(i => `<li>${i}</li>`).join('')}</ul>` : ''}
       <div class="price-row">
         <div><div class="price-usd">${fu(p)} USD</div><div class="price-mxn">${fm(p)}</div></div>
-        <span class="hrs-tag">~${s.hrs} hrs</span>
+        ${typeof s.price !== "number" ? `<span class="hrs-tag">~${s.hrs} hrs</span>` : ''}
       </div>
     </div>`;
   }).join('');
