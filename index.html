@@ -52,11 +52,17 @@
   .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1.25rem; }
   .filter-btn { font-size: 12px; padding: 5px 14px; border: 0.5px solid var(--border); border-radius: 999px; background: transparent; color: var(--text-secondary); cursor: pointer; font-family: inherit; }
   .filter-btn.active, .filter-btn:hover { background: var(--purple-50); color: var(--purple-800); border-color: var(--purple-200); }
-  @media print { .filter-bar { display: none; } .services-grid { grid-template-columns: repeat(2, 1fr); } }
+  .view-switch { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 100; background: var(--bg-primary); border: 1px solid var(--border); padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: all 0.2s; }
+  .view-switch:hover { background: var(--purple-600); color: white; border-color: var(--purple-600); transform: translateY(-2px); }
+  @media print { .filter-bar, .view-switch { display: none; } .services-grid { grid-template-columns: repeat(2, 1fr); } }
 </style>
 </head>
 <body>
 <div class="page">
+  <a href="Referencia Interna de Precios.html" class="view-switch">
+    <span>Visión Interna</span>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+  </a>
   <div class="header">
     <h1>Catálogo de servicios creativos</h1>
     <p>Diseño gráfico · Ilustración · Contenido audiovisual</p>
@@ -69,14 +75,7 @@
   <div class="section">
     <div class="section-title">Servicios</div>
     <div class="filter-bar">
-      <button class="filter-btn active" onclick="filterCards('all', this)">Todos</button>
-      <button class="filter-btn" onclick="filterCards('branding', this)">Branding</button>
-      <button class="filter-btn" onclick="filterCards('ilustracion', this)">Ilustración</button>
-      <button class="filter-btn" onclick="filterCards('social', this)">Redes sociales</button>
-      <button class="filter-btn" onclick="filterCards('editorial', this)">Editorial</button>
-      <button class="filter-btn" onclick="filterCards('motion', this)">Motion / Video</button>
-      <button class="filter-btn" onclick="filterCards('streamer', this)">Streamers</button>
-      <button class="filter-btn" onclick="filterCards('filmmaking', this)">Filmmaking</button>
+      <!-- Filtros dinámicos desde JS -->
     </div>
     <div class="services-grid" id="services-grid"></div>
   </div>
@@ -105,85 +104,109 @@
   </div>
 
   <div class="note-box">
-    Todos los precios incluyen investigación y estrategia, conceptualización, diseño y 2 revisiones. Precios expresados en USD / MXN (tipo de cambio referencial: $20 MXN por USD). Esta es una tarifa de transición — cotizaciones personalizadas disponibles para proyectos fuera de catálogo.
+    Todos los precios incluyen investigación y estrategia, conceptualización, diseño y 2 revisiones. Precios expresados en USD / MXN (tipo de cambio referencial: $17.89 MXN por USD). Esta es una tarifa de transición — cotizaciones personalizadas disponibles para proyectos fuera de catálogo.
   </div>
 </div>
 
+<script src="data.js"></script>
 <script>
-const TC = 20;
-const services = [
-  { cat: 'branding', name: 'Identidad de marca básica', desc: 'Logotipo + paleta de color + tipografía + manual básico de uso.', hrs: 20, price: 250, includes: ['Investigación y brief', 'Conceptualización (2 propuestas)', 'Diseño final', '2 revisiones incluidas', 'Archivos listos para uso'] },
-  { cat: 'branding', name: 'Branding completo', desc: 'Sistema de identidad integral: logo, brand guidelines, papelería y aplicaciones.', hrs: 40, price: 500, featured: true, includes: ['Todo lo de Identidad básica', 'Aplicaciones (tarjeta, hoja membretada, firma)', 'Brand guidelines detallado', 'Manual de uso digital e impreso'] },
-  { cat: 'branding', name: 'Campaña publicitaria', desc: 'Concepto creativo + materiales adaptados a distintos formatos y medios.', hrs: 35, price: 430, includes: ['Investigación y estrategia creativa', 'Concepto y copywriting base', 'Adaptaciones para medios clave', '2 revisiones por pieza'] },
-  { cat: 'ilustracion', name: 'Boceto / sketch', desc: 'Dibujo a lápiz digital sin color. Perfecto para aprobar poses, composición o concepto antes de continuar.', hrs: 2, price: 25, includes: ['1 personaje o escena sencilla', 'Fondo neutro o sin fondo', 'Archivo PNG de alta resolución', '1 revisión incluida'] },
-  { cat: 'ilustracion', name: 'Flats (color plano)', desc: 'Boceto limpio con colores planos, sin sombreado. Ideal para stickers, prints o referencia de color.', hrs: 4, price: 50, includes: ['Línea limpia + colores base', '1 personaje o escena sencilla', 'Fondo simple o transparente', '2 revisiones incluidas'] },
-  { cat: 'ilustracion', name: 'Cell shading', desc: 'Ilustración con sombreado de estilo anime/cartoon: plano, gráfico y de alto contraste.', hrs: 6, price: 75, includes: ['Línea limpia + flats + sombras duras', '1 personaje busto o cuerpo completo', 'Fondo simple incluido', '2 revisiones incluidas'] },
-  { cat: 'ilustracion', name: 'Full render', desc: 'Ilustración con sombreado detallado y acabado profesional. El nivel más completo de acabado.', hrs: 12, price: 150, featured: true, includes: ['Sombreado detallado + luces + texturas', '1 personaje cuerpo completo', 'Fondo simple incluido', '2 revisiones incluidas'] },
-  { cat: 'ilustracion', name: 'Fondo / background', desc: 'Escena o ambiente sin personajes: interior, exterior, fantástico o realista.', hrs: 8, price: 100, includes: ['Composición + color + iluminación base', 'Sin personajes (se puede combinar con otros paquetes)', 'Alta resolución para impresión o digital', '2 revisiones incluidas'] },
-  { cat: 'ilustracion', name: 'Ilustración completa (personaje + fondo)', desc: 'Personaje a full render sobre fondo detallado. La combinación más completa.', hrs: 18, price: 220, includes: ['1 personaje cuerpo completo (full render)', 'Fondo elaborado', 'Composición e iluminación integradas', '2 revisiones incluidas'] },
-  { cat: 'ilustracion', name: 'Fanart', desc: 'Ilustración de personajes de series, videojuegos, anime u otras obras. Solo uso personal / no comercial.', hrs: 6, price: 75, includes: ['Cell shading o flats según precio', '1 personaje con referencia clara', 'Fondo simple o transparente', '2 revisiones incluidas', 'Solo uso personal — no comercial'] },
-  { cat: 'ilustracion', name: 'Stickers digitales (x5)', desc: 'Set de 5 stickers originales con fondo transparente, listos para usar en Telegram, WhatsApp o imprimir.', hrs: 8, price: 95, includes: ['5 diseños en estilo flats o cell shading', 'Fondo transparente (PNG)', 'Resolución para digital e impresión', '2 revisiones al set completo'] },
-  { cat: 'ilustracion', name: 'Diseño de personaje', desc: 'Diseño original de personaje con hoja de modelo: vistas frontal y lateral, paleta y expresiones.', hrs: 14, price: 180, includes: ['Bocetos de exploración', 'Diseño frontal + expresiones básicas', 'Hoja de modelo digital', '2 revisiones'] },
-  { cat: 'ilustracion', name: 'Ilustración editorial', desc: 'Ilustración original para artículos, libros, revistas o medios digitales.', hrs: 10, price: 130, includes: ['Brief y referencias', 'Boceto aprobado antes del arte final', 'Ilustración en alta resolución', '2 revisiones'] },
-  { cat: 'ilustracion', name: 'Concept art', desc: 'Arte conceptual para mundos, entornos o personajes de proyectos creativos o narrativos.', hrs: 18, price: 220, includes: ['Exploración visual (moodboard)', 'Bocetos conceptuales', 'Arte final pulido', '2 revisiones'] },
-  { cat: 'ilustracion', name: 'Merch (diseño para producto)', desc: 'Ilustración adaptada para playera, tote bag, sticker físico, poster u otro producto.', hrs: 8, price: 100, includes: ['Diseño adaptado a producto', 'Archivo listo para impresión', 'Mockup de presentación', '2 revisiones'] },
-  { cat: 'social', name: 'Pack de publicaciones (x10)', desc: '10 posts con diseño consistente para redes sociales (feed o stories).', hrs: 12, price: 150, includes: ['Brief de marca y tono', 'Diseño de plantilla base', '10 publicaciones adaptadas', '2 rondas de revisión'] },
-  { cat: 'social', name: 'Kit de plantillas redes (x20)', desc: 'Set de 20 plantillas editables para feed, stories y highlights.', hrs: 18, price: 230, includes: ['Sistema de plantillas coherente', 'Versiones para feed y stories', 'Archivos editables (Canva o Figma)', '2 revisiones'] },
-  { cat: 'editorial', name: 'Revista (por edición, hasta 20 pp)', desc: 'Maquetación completa de hasta 20 páginas con sistema editorial.', hrs: 30, price: 370, includes: ['Grid y sistema editorial', 'Maquetación de contenido', 'Ajuste de tipografía e imágenes', '2 revisiones', 'Archivo listo para imprenta'] },
-  { cat: 'editorial', name: 'Libro / ebook (hasta 80 pp)', desc: 'Maquetación profesional de hasta 80 páginas (portada incluida).', hrs: 38, price: 470, includes: ['Diseño de portada y contraportada', 'Maquetación interior', 'PDF digital optimizado', '2 revisiones'] },
-  { cat: 'motion', name: 'Motion graphics (30s)', desc: 'Animación corta para redes, intro o presentación de marca.', hrs: 16, price: 200, includes: ['Storyboard básico', 'Animación 2D / motion', 'Versión MP4 optimizada', '2 revisiones'] },
-  { cat: 'motion', name: 'Edición de video (hasta 5 min)', desc: 'Edición profesional con color, sonido y gráficos.', hrs: 12, price: 150, includes: ['Corte y montaje', 'Corrección de color básica', 'Gráficos y títulos', '2 revisiones'] },
-  { cat: 'motion', name: 'Fotografía (sesión + edición)', desc: 'Sesión fotográfica con edición profesional. Hasta 30 fotos entregadas.', hrs: 8, price: 110, includes: ['Sesión hasta 2 hrs', '30 fotos seleccionadas', 'Edición y retoque profesional', 'Galería digital de entrega'] },
-  { cat: 'streamer', name: 'Pack streamer básico', desc: 'Identidad visual completa para canal: overlay, paneles, alerts y logo.', hrs: 18, price: 230, includes: ['Logo / marca personal', 'Overlay para stream', 'Paneles de canal (3 piezas)', 'Alerts de seguimiento y sub'] },
-  { cat: 'streamer', name: 'Emotes personalizados (x5)', desc: 'Set de 5 emotes originales listos para Twitch / Discord.', hrs: 10, price: 130, includes: ['Diseño a partir de brief', '5 emotes en resoluciones requeridas', '2 revisiones por emote'] },
-  { cat: 'streamer', name: 'PNGtuber personalizado', desc: 'Avatar PNG animable con estados (idle, hablando, sorpresa).', hrs: 14, price: 175, includes: ['Diseño de personaje base', '3 estados expresivos', 'Archivos listos para Veadotube / OBS', '2 revisiones'] },
-  { cat: 'filmmaking', name: 'Reel para redes (hasta 60s)', desc: 'Video corto filmado y editado para Instagram, TikTok o YouTube Shorts.', hrs: 10, price: 130, includes: ['Planeación de contenido y guión breve', 'Filmación (hasta 2 hrs)', 'Edición + subtítulos + música', '1 formato optimizado para red', '2 revisiones'] },
-  { cat: 'filmmaking', name: 'Pack de reels (x3)', desc: '3 reels filmados en una sola sesión, editados individualmente.', hrs: 22, price: 270, featured: true, includes: ['Planeación de contenido', 'Sesión de filmación (hasta 4 hrs)', 'Edición individual por reel', 'Subtítulos + música + gráficos', '2 revisiones por pieza'] },
-  { cat: 'filmmaking', name: 'Video de producto / servicio', desc: 'Video corto (hasta 90s) para presentar un producto o servicio en redes.', hrs: 14, price: 180, includes: ['Brief y guión base', 'Filmación (hasta 3 hrs)', 'Edición con gráficos de marca', 'Versión horizontal y vertical', '2 revisiones'] },
-  { cat: 'filmmaking', name: 'Contenido mensual para redes', desc: 'Paquete mensual: 8 reels o videos cortos filmados y editados.', hrs: 40, price: 480, includes: ['Estrategia de contenido mensual', '2 sesiones de filmación al mes', '8 videos editados', 'Subtítulos, música y gráficos', 'Entrega escalonada semanal'] },
-];
+let TC = parseFloat(localStorage.getItem('cotizador_tc')) || DB.config.defaultTC;
 
-const extras = [
-  { name: 'Revisión adicional', price: '$20–40 USD / $400–800 MXN', desc: 'Por ronda extra de cambios fuera del paquete.' },
-  { name: 'Urgencia (entrega express)', price: '+50% al precio base', desc: 'Entrega en menos de la mitad del tiempo estimado.' },
-  { name: 'Factor de complejidad', price: '+20–40% al precio base', desc: 'Proyectos con alta personalización o investigación extensa.' },
-  { name: 'Recursos adicionales', price: '$15–50 USD / $300–1,000 MXN', desc: 'Fuentes premium, stock o plugins específicos.' },
-  { name: 'Licencia de uso comercial extendida', price: '+30% al precio base', desc: 'Para publicidad masiva, TV o reventa de producto.' },
-  { name: 'Licencia exclusiva (transferencia de derechos)', price: '+80–150% al precio base', desc: 'Transferencia total de derechos patrimoniales.' },
-  { name: 'Archivos fuente editables', price: '$25–60 USD / $500–1,200 MXN', desc: 'Entrega de archivos originales (.ai, .psd, .fig, etc.).' },
-  { name: 'Adaptación a múltiples formatos', price: '$15–40 USD / $300–800 MXN por formato', desc: 'Versiones del mismo diseño para distintos soportes.' },
-  { name: 'Consultoría de marca (por hora)', price: '$20 USD / $400 MXN por hora', desc: 'Sesión estratégica de revisión o dirección creativa.' },
-];
+// Listen for changes in localStorage from other tabs
+window.addEventListener('storage', (e) => {
+  if (e.key === 'cotizador_tc') {
+    TC = parseFloat(e.newValue) || DB.config.defaultTC;
+    renderAll();
+  }
+});
 
-const catLabels = { branding: 'Branding', ilustracion: 'Ilustración', social: 'Redes sociales', editorial: 'Editorial', motion: 'Motion / Video', streamer: 'Streamers', filmmaking: 'Filmmaking' };
+function renderAll() {
+  renderFilters();
+  renderServices();
+  renderExtras();
+  updateRateBadge();
+}
+
+const fu = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fm = n => '$' + (n * TC).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' MXN';
+const getPrice = hrs => hrs * DB.config.baseRateEuro;
+
+function updateRateBadge() {
+  const badge = document.querySelector('.badge-rate');
+  if (badge) {
+    const p = getPrice(1);
+    badge.textContent = `Tarifa base: ${fu(p)} USD / ${fm(p)} por hora`;
+  }
+  const note = document.querySelector('.note-box');
+  if (note) {
+    note.innerHTML = `${DB.config.clientNote.replace('USD / MXN', 'USD / MXN (tipo de cambio referencial: $' + TC + ' MXN por USD)')}`;
+  }
+}
+
 let currentFilter = 'all';
 
-function filterCards(cat, btn) {
+function renderFilters() {
+  const bar = document.querySelector('.filter-bar');
+  const cats = Object.entries(DB.categories);
+  bar.innerHTML = `<button class="filter-btn ${currentFilter === 'all' ? 'active' : ''}" onclick="setFilter('all', this)">Todos</button>` + 
+    cats.map(([id, name]) => `<button class="filter-btn ${currentFilter === id ? 'active' : ''}" onclick="setFilter('${id}', this)">${name}</button>`).join('');
+}
+
+function setFilter(cat, btn) {
   currentFilter = cat;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderServices();
 }
 
-function renderServices() {
-  const filtered = currentFilter === 'all' ? services : services.filter(s => s.cat === currentFilter);
-  document.getElementById('services-grid').innerHTML = filtered.map(s => `
-    <div class="service-card${s.featured ? ' featured' : ''}">
-      <div class="service-name">${s.name}</div>
-      <span class="service-cat">${catLabels[s.cat] || s.cat}</span>
-      <div class="service-desc">${s.desc}</div>
-      <ul class="includes">${s.includes.map(i => `<li>${i}</li>`).join('')}</ul>
-      <div class="price-row">
-        <div><div class="price-usd">$${s.price.toLocaleString('en-US')} USD</div><div class="price-mxn">$${(s.price*TC).toLocaleString('es-MX')} MXN</div></div>
-        <span class="hrs-tag">~${s.hrs} hrs</span>
-      </div>
-    </div>`).join('');
+function getFlattenedServices() {
+  let all = [...DB.services];
+  // Include minor services
+  Object.entries(DB.internal.minor).forEach(([catKey, items]) => {
+    items.forEach(i => all.push({ ...i, cat: catKey }));
+  });
+  return all;
 }
 
-document.getElementById('extras-grid').innerHTML = extras.map(e => `
-  <div class="extra-card"><div class="extra-name">${e.name}</div><div class="extra-price">${e.price}</div><div class="extra-desc">${e.desc}</div></div>`).join('');
+function renderServices() {
+  const allSrv = getFlattenedServices();
+  const filtered = currentFilter === 'all' ? allSrv : allSrv.filter(s => s.cat === currentFilter);
+  const grid = document.getElementById('services-grid');
+  
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 3rem; color: var(--text-tertiary);">No hay servicios en esta categoría por el momento.</div>`;
+    return;
+  }
 
-renderServices();
+  grid.innerHTML = filtered.map(s => {
+    const p = getPrice(s.hrs);
+    return `
+    <div class="service-card${s.featured ? ' featured' : ''}">
+      <span class="service-cat">${DB.categories[s.cat] || s.cat}</span>
+      <div class="service-name">${s.name}</div>
+      <div class="service-desc">${s.desc || ''}</div>
+      ${s.includes ? `<ul class="includes">${s.includes.map(i => `<li>${i}</li>`).join('')}</ul>` : ''}
+      <div class="price-row">
+        <div><div class="price-usd">${fu(p)} USD</div><div class="price-mxn">${fm(p)}</div></div>
+        <span class="hrs-tag">~${s.hrs} hrs</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderExtras() {
+  document.getElementById('extras-grid').innerHTML = DB.extras.map(e => {
+    let pStr = '';
+    if (e.flat_fee) pStr = `${fu(e.flat_fee)} USD / ${fm(e.flat_fee)}`;
+    else if (e.multiplier) pStr = `+${e.multiplier * 100}% al precio base`;
+    else if (e.price_range) pStr = e.price_range;
+    else if (e.hrs) pStr = `${fu(getPrice(e.hrs))} USD / ${fm(getPrice(e.hrs))}`;
+
+    return `<div class="extra-card"><div class="extra-name">${e.name}</div><div class="extra-price">${pStr}</div><div class="extra-desc">${e.desc}</div></div>`;
+  }).join('');
+}
+
+renderAll();
 </script>
 </body>
 </html>
