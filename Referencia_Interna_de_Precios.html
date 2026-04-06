@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Referencia interna de precios</title>
+<script src="data.js"></script>
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@100..900&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles-interna.css">
+</head>
+<body>
+
+<!-- Template oculto de Cotización PDF -->
+<div id="print-quote">
+  <div class="pdf-header">
+    <img src="images/logo2.png" height="90" width="auto" class="logo">
+    <div class="pdf-info">
+      <div>Cotización de Servicios</div>
+      <div id="pdf-date"></div>
+      <div>ID: <span id="pdf-id"></span></div>
+    </div>
+  </div>
+  <div class="pdf-title">Presupuesto Estimado</div>
+  <table class="pdf-table">
+    <thead>
+      <tr><th>Concepto</th><th style="text-align:right">Costo (USD)</th></tr>
+    </thead>
+    <tbody id="pdf-body"></tbody>
+    <tfoot>
+      <tr class="pdf-total-row">
+        <td style="padding-top:20px; font-weight:700">TOTAL ESTIMADO</td>
+        <td style="padding-top:20px; text-align:right">
+          <div class="pdf-total-usd" id="pdf-total-usd"></div>
+          <div style="font-size:14px; color:#666" id="pdf-total-mxn"></div>
+        </td>
+      </tr>
+    </tfoot>
+  </table>
+  <div style="background:#fef9c3; padding:15px; border-radius:8px; font-size:12px; line-height:1.6;">
+    <strong>Notas importantes:</strong><br>
+    · Precios sujetos a cambios según ajustes de requerimientos.<br>
+    · Incluye 2 rondas de revisiones por pieza.<br>
+    · Entrega estimada sujeta a confirmación de agenda.
+  </div>
+  <div class="pdf-footer">
+    Cotización válida por 15 días tras su emisión. Este documento es un presupuesto preliminar basado en la selección del catálogo actual.
+  </div>
+</div>
+
+<div class="layout">
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <img src="images/logo.png" class="logo" width="120">
+    <div class="sidebar-brand-sub">Cotizaciones personalizadas</div>
+    <div class="badge-internal">Solo para ti</div>
+    <div style="margin-top:12px; padding:8px; background:var(--gray-50); border-radius:var(--radius-sm);">
+      <div style="font-size:10px; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:4px;">Tipo de Cambio</div>
+      <div style="display:flex; align-items:center; gap:5px;">
+        <span style="font-size:12px; color:var(--text-secondary);">$1 USD =</span>
+        <input type="number" id="tc-input" value="20" step="any" style="width:70px; background:transparent; border:none; border-bottom:1px solid var(--border); font-family:inherit; font-weight:500; font-size:12px; color:var(--text-primary);" oninput="updateTC(this.value)">
+        <span style="font-size:12px; color:var(--text-secondary);">MXN</span>
+      </div>
+    </div>
+  </div>
+  <div class="nav-section">Branding</div>
+  <a class="nav-item" onclick="goTo('branding', this)"><span class="nav-dot" style="background:var(--c-branding)"></span>Branding</a>
+  <hr class="sidebar-divider">
+  <div class="nav-section">Streamers</div>
+  <a class="nav-item" onclick="goTo('overlays', this)"><span class="nav-dot" style="background:var(--c-streamers)"></span>Overlays y pantallas</a>
+  <a class="nav-item" onclick="goTo('alertas', this)"><span class="nav-dot" style="background:var(--c-streamers)"></span>Alertas y transiciones</a>
+  <a class="nav-item" onclick="goTo('canal', this)"><span class="nav-dot" style="background:var(--c-streamers)"></span>Canal y marca personal</a>
+  <a class="nav-item" onclick="goTo('packs', this)"><span class="nav-dot" style="background:var(--c-streamers)"></span>Packs predefinidos</a>
+  <hr class="sidebar-divider">
+  <div class="nav-section">Ilustración</div>
+  <a class="nav-item" onclick="goTo('ilus-niveles', this)"><span class="nav-dot" style="background:var(--c-ilustracion-acabado)"></span>Por nivel de acabado</a>
+  <a class="nav-item" onclick="goTo('ilus-tipos', this)"><span class="nav-dot" style="background:var(--c-ilustracion-proyecto)"></span>Por tipo de proyecto</a>
+  <hr class="sidebar-divider">
+  <div class="nav-section">Redes y contenido</div>
+  <a class="nav-item" onclick="goTo('social', this)"><span class="nav-dot" style="background:var(--c-redes)"></span>Redes sociales</a>
+  <a class="nav-item" onclick="goTo('contenido', this)"><span class="nav-dot" style="background:var(--c-infografias)"></span>Infografías y contenido</a>
+  <hr class="sidebar-divider">
+  <div class="nav-section">Editorial</div>
+  <a class="nav-item" onclick="goTo('editorial-full', this)"><span class="nav-dot" style="background:var(--c-editorial)"></span>Editorial (proyectos)</a>
+  <a class="nav-item" onclick="goTo('editorial-minor', this)"><span class="nav-dot" style="background:var(--c-editorial)"></span>Editorial (piezas sueltas)</a>
+  <hr class="sidebar-divider">
+  <div class="nav-section">Filmmaking y foto</div>
+  <a class="nav-item" onclick="goTo('film', this)"><span class="nav-dot" style="background:var(--c-filmmaking)"></span>Filmmaking / video</a>
+  <a class="nav-item" onclick="goTo('foto', this)"><span class="nav-dot" style="background:var(--c-fotografia)"></span>Fotografía</a>
+  <hr class="sidebar-divider">
+  <div class="nav-section">Servicios menores</div>
+  <a class="nav-item" onclick="goTo('merch', this)"><span class="nav-dot" style="background:var(--c-merch)"></span>Merch y productos</a>
+  <a class="nav-item" onclick="goTo('identidad', this)"><span class="nav-dot" style="background:var(--c-identidad)"></span>Identidad impresa</a>
+  <a class="nav-item" onclick="goTo('digital', this)"><span class="nav-dot" style="background:var(--c-fotografia)"></span>Presencia digital</a>
+  <hr class="sidebar-divider">
+  <div class="nav-section">Consultoría</div>
+  <a class="nav-item" onclick="goTo('consultoria', this)"><span class="nav-dot" style="background:var(--c-consultoria)"></span>Consultoría de marca</a>
+  <hr class="sidebar-divider">
+  <a class="nav-item" onclick="goTo('calc', this)"><span class="nav-dot" style="background:var(--accent-green)"></span>Calculadora</a>
+  <hr class="sidebar-divider">
+  <div class="nav-section">Vistas</div>
+  <a class="nav-item" href="index.html" style="text-decoration:none;"><span class="nav-dot" style="background:var(--accent-purple)"></span>Ver Catálogo Cliente</a>
+</nav>
+
+<main class="main">
+  <div class="page-header">
+    <div class="page-title">Referencia interna de precios</div>
+    <div class="page-sub">Uso personal · Cotizaciones rápidas y personalizadas · Tarifa base: $13 USD / hr</div>
+  </div>
+
+  <div class="section" id="branding">
+    <div class="section-header"><div class="section-dot" style="background:var(--c-branding)"></div><div><div class="section-title">Branding</div><div class="section-note">Identidad de marca y campañas</div></div></div>
+    <table class="price-table"><thead><tr><th>Servicio</th><th class="r">Hrs</th><th class="r">USD</th><th class="r">MXN</th><th>Incluye</th></tr></thead><tbody id="branding-tbody"></tbody></table>
+  </div>
+
+  <div class="section" id="overlays">
+    <div class="section-header"><div class="section-dot" style="background:var(--c-streamers)"></div><div><div class="section-title">Overlays y pantallas</div><div class="section-note">Precio animado / precio estático por escena</div></div></div>
+    <table class="price-table"><thead><tr><th>Escena</th><th>Plataforma</th><th class="r">Hrs</th><th class="r">Animado USD</th><th class="r">Estático USD</th></tr></thead><tbody id="overlays-tbody"></tbody></table>
+  </div>
+
+  <div class="section" id="alertas">
+    <div class="section-header"><div class="section-dot" style="background:var(--c-streamers)"></div><div><div class="section-title">Alertas y transiciones</div><div class="section-note">WebM animado / PNG estático</div></div></div>
+    <table class="price-table"><thead><tr><th>Pieza</th><th>Tipo</th><th>Plataforma</th><th class="r">Hrs</th><th class="r">USD</th><th class="r">MXN</th></tr></thead><tbody id="alertas-tbody"></tbody></table>
+  </div>
+
+  <div class="section" id="canal">
+    <div class="section-header"><div class="section-dot" style="background:var(--c-streamers)"></div><div><div class="section-title">Canal y marca personal</div><div class="section-note">Paneles, banners, perfil, emotes, badges</div></div></div>
+    <table class="price-table"><thead><tr><th>Pieza</th><th>Plataforma</th><th class="r">Hrs</th><th class="r">USD</th><th class="r">MXN</th></tr></thead><tbody id="canal-tbody"></tbody></table>
+  </div>
+
+  <div class="section" id="packs">
+    <div class="section-header"><div class="section-dot" style="background:var(--c-streamers)"></div><div><div class="section-title">Packs predefinidos</div><div class="section-note">Combinaciones frecuentes con descuento integrado</div></div></div>
+    <div class="pack-grid" id="pack-grid"></div>
+  </div>
+
+  <div class="section" id="calc">
+    <div class="section-header"><div class="section-dot" style="background:#D5F700"></div><div><div class="section-title">Calculadora de cotización</div><div class="section-note">Selecciona piezas de cualquier categoría</div></div></div>
+    <div class="calc-wrap">
+      <div class="calc-box">
+        <input type="text" class="calc-search" placeholder="Buscar pieza..." oninput="filterCalc(this.value)" id="calc-search">
+        <div id="calc-items"></div>
+      </div>
+      <div class="calc-summary">
+        <div class="calc-summary-title">Resumen</div>
+        <div class="summary-items" id="summary-items"><div class="summary-empty">Sin piezas seleccionadas</div></div>
+        <div class="mods-title">Modificadores</div>
+        <div class="mod-row"><label><input type="checkbox" id="mod-urgencia" onchange="recalc()"> Urgencia</label><span class="mod-val">+50%</span></div>
+        <div class="mod-row"><label><input type="checkbox" id="mod-complejidad" onchange="recalc()"> Alta complejidad</label><span class="mod-val">+30%</span></div>
+        <div class="mod-row"><label><input type="checkbox" id="mod-fuentes" onchange="recalc()"> Archivos fuente</label><span class="mod-val">+$30</span></div>
+        <div class="mod-row"><label><input type="checkbox" id="mod-comercial" onchange="recalc()"> Licencia comercial</label><span class="mod-val">+30%</span></div>
+        <div class="mod-row"><label><input type="checkbox" id="mod-exclusiva" onchange="recalc()"> Licencia exclusiva</label><span class="mod-val">+100%</span></div>
+        <div class="mod-row"><label><input type="checkbox" id="mod-descuentoamigo" onchange="recalc()"> Descuento Amigo</label><span class="mod-val">-10%</span></div>
+        <div class="calc-total-row">
+          <span class="calc-total-label">Total</span>
+          <div style="text-align:right"><div class="calc-total-usd" id="total-usd">$0 USD</div><div class="calc-total-mxn" id="total-mxn">$0 MXN</div></div>
+        </div>
+        <button class="copy-btn" onclick="copySummary()">Copiar resumen ↗</button>
+        <button class="copy-btn" style="background:rgba(98, 0, 163, 0.10); border-color:rgba(148, 0, 247, 0.40); color:#BB56FF; margin-top:8px" onclick="generatePDF()">Generar PDF 📄</button>
+        <button class="clear-btn" onclick="clearAll()">Limpiar selección</button>
+        <div class="copied" id="copied-msg">¡Copiado!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="ilus-niveles">
+    <div class="section-header"><div class="section-dot" style="background:var(--c-ilustracion-acabado)"></div><div><div class="section-title">Ilustración — por nivel de acabado</div><div class="section-note">Precio base 1 personaje · sujeto a complejidad</div></div></div>
+    <table class="price-table"><thead><tr><th>Nivel</th><th class="r">Hrs</th><th class="r">USD</th><th class="r">MXN</th></tr></thead><tbody id="ilus-niveles-tbody"></tbody></table>
+  </div>
+
+  <div class="section" id="ilus-tipos">
+    <div class="section-header"><div class="section-dot" style="background:var(--c-ilustracion-proyecto)"></div><div><div class="section-title">Ilustración — por tipo de proyecto</div></div></div>
+    <table class="price-table"><thead><tr><th>Servicio</th><th class="r">Hrs</th><th class="r">USD</th><th class="r">MXN</th></tr></thead><tbody id="ilus-tipos-tbody"></tbody></table>
+  </div>
+
+  <div class="section" id="social">
+    <div class="section-header"><div class="section-dot" style="background:var(--c-redes)"></div><div><div class="section-title">Redes sociales</div><div class="section-note">Posts, plantillas y carruseles</div></div></div>
+    <table class="price-table"><thead><tr><th>Servicio</th><th class="r">Hrs</th><th class="r">USD</th><th class="r">MXN</th></tr></thead><tbody id="social-tbody"></tbody></table>
+  </div>
+
+  <div class="section" id="editorial-full">
+    <div class="section-header"><div class="section-dot" style="background:var(--c-editorial)"></div><div><div class="section-title">Editorial — proyectos completos</div><div class="section-note">Revistas, libros y ebooks</div></div></div>
+    <table class="price-table"><thead><tr><th>Servicio</th><th class="r">Hrs</th><th class="r">USD</th><th class="r">MXN</th></tr></thead><tbody id="editorial-full-tbody"></tbody></table>
+  </div>
+
+  <div class="section" id="film">
+    <div class="section-header"><div class="section-dot" style="background:var(--c-filmmaking)"></div><div><div class="section-title">Filmmaking / video</div></div></div>
+    <table class="price-table"><thead><tr><th>Servicio</th><th class="r">Hrs</th><th class="r">USD</th><th class="r">MXN</th></tr></thead><tbody id="film-tbody"></tbody></table>
+  </div>
+
+  <div class="section" id="foto">
+    <div class="section-header"><div class="section-dot" style="background:var(--c-fotografia)"></div><div><div class="section-title">Fotografía</div></div></div>
+    <table class="price-table"><thead><tr><th>Servicio</th><th class="r">Hrs</th><th class="r">USD</th><th class="r">MXN</th></tr></thead><tbody id="foto-tbody"></tbody></table>
+  </div>
+
+  <div class="section" id="merch">
+    <div class="section-header"><div class="section-dot" style="background:var(--c-merch)"></div><div><div class="section-title">Merch y productos</div><div class="section-note">Solo diseño · coordinación de producción se cotiza aparte</div></div></div>
+    <div class="minor-grid" id="merch-grid"></div>
+  </div>
+
+  <div class="section" id="identidad">
+    <div class="section-header"><div class="section-dot" style="background:var(--c-identidad)"></div><div><div class="section-title">Identidad impresa</div></div></div>
+    <div class="minor-grid" id="identidad-grid"></div>
+  </div>
+
+  <div class="section" id="digital">
+    <div class="section-header"><div class="section-dot" style="background:var(--c-fotografia)"></div><div><div class="section-title">Presencia digital</div></div></div>
+    <div class="minor-grid" id="digital-grid"></div>
+  </div>
+
+  <div class="section" id="editorial-minor">
+    <div class="section-header"><div class="section-dot" style="background:var(--c-editorial)"></div><div><div class="section-title">Editorial — piezas sueltas</div><div class="section-note">Piezas sueltas fuera de proyectos completos</div></div></div>
+    <div class="minor-grid" id="editorial-grid"></div>
+  </div>
+
+  <div class="section" id="contenido">
+    <div class="section-header"><div class="section-dot" style="background:var(--c-infografias)"></div><div><div class="section-title">Infografías y contenido</div></div></div>
+    <div class="minor-grid" id="contenido-grid"></div>
+  </div>
+
+  <div class="section" id="consultoria">
+    <div class="section-header"><div class="section-dot" style="background:var(--c-consultoria)"></div><div><div class="section-title">Consultoría de marca</div><div class="section-note">Tarifas de introducción sugeridas</div></div></div>
+    <div class="tip-box">Tip para introducirla: ofrécela primero como "revisión de marca" ($35 USD, 1 hr) al cierre de un proyecto de branding. Fácil de vender y el cliente lo percibe como valor agregado. Una vez con 2–3 recurrentes, sube a los paquetes de horas.</div>
+    <div class="consult-grid" id="consult-grid"></div>
+  </div>
+</main>
+</div>
+
+<script>
+let TC = parseFloat(localStorage.getItem('cotizador_tc')) || DB.config.defaultTC;
+const checkedState = {};
+
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('tc-input');
+  if(input) input.value = TC;
+  renderAll();
+});
+
+function updateTC(val) {
+  TC = parseFloat(val) || DB.config.defaultTC;
+  localStorage.setItem('cotizador_tc', TC);
+  renderAll();
+}
+
+function renderAll() {
+  const containers = [
+    'branding-tbody',
+    'overlays-tbody', 'alertas-tbody', 'canal-tbody', 'pack-grid',
+    'ilus-niveles-tbody', 'ilus-tipos-tbody',
+    'social-tbody', 'editorial-full-tbody',
+    'film-tbody', 'foto-tbody',
+    'merch-grid', 'identidad-grid', 'digital-grid', 'editorial-grid',
+    'contenido-grid', 'consult-grid', 'calc-items'
+  ];
+  containers.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.innerHTML = '';
+  });
+  
+  initRenders();
+  buildCalc(document.getElementById('calc-search')?.value || '');
+  recalc();
+  
+  if(!document.querySelector('.section.active')) goTo('branding');
+}
+
+const fu = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fm = n => '$' + (n * TC).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' MXN';
+const PT = { twitch: '<span class="tag tag-twitch">Twitch</span>', youtube: '<span class="tag tag-youtube">YouTube</span>', kick: '<span class="tag tag-kick">Kick</span>', all: '<span class="tag tag-all">Todas</span>' };
+const TA = { anim: '<span class="tag tag-anim">Animado</span>', stat: '<span class="tag tag-static">Estático</span>' };
+
+function getPrice(hrs) { return hrs * DB.config.baseRateEuro; }
+
+function renderRow(t, s) {
+  const p = (typeof s.price === 'number') ? s.price : getPrice(s.hrs);
+  const hrsCell = `<td class="hrs-cell">~${s.hrs}h</td>`;
+  const includesHtml = s.includes
+    ? `<td style="font-size:11px;color:var(--text-secondary);line-height:1.6">${s.includes.map(i => '· ' + i).join('<br>')}</td>`
+    : '<td></td>';
+  t.innerHTML += `<tr>
+    <td><div class="item-name">${s.name}</div><div class="item-desc">${s.desc || ''}</div></td>
+    ${hrsCell}
+    <td class="price-usd">${fu(p)}</td>
+    <td class="price-mxn">${fm(p)}</td>
+    ${includesHtml}
+  </tr>`;
+}
+
+function initRenders() {
+  // Branding
+  const bt = document.getElementById('branding-tbody');
+  DB.services.filter(s => s.cat === 'branding').forEach(s => renderRow(bt, s));
+
+  // Overlays
+  const ot = document.getElementById('overlays-tbody');
+  DB.internal.overlays.forEach(o => {
+    const pa = getPrice(o.hrs * (o.multiplier_anim || 1.25));
+    const ps = getPrice(o.hrs);
+    ot.innerHTML += `<tr>
+      <td><div class="item-name">${o.name}</div><div class="item-desc">${o.desc}</div><div class="item-spec">${o.spec}</div></td>
+      <td><div class="plat">${PT.all}</div></td>
+      <td class="hrs-cell">~${o.hrs}h</td>
+      <td class="price-usd">${fu(pa)} <span style="font-size:10px;color:var(--text-tertiary)">anim.</span></td>
+      <td class="price-usd">${fu(ps)} <span style="font-size:10px;color:var(--text-tertiary)">est.</span></td>
+    </tr>`;
+  });
+
+  // Alertas
+  const alT = document.getElementById('alertas-tbody');
+  DB.internal.alertas.forEach(a => {
+    const platH = a.plat.map(p => PT[p]).join('');
+    const p = getPrice(a.hrs);
+    alT.innerHTML += `<tr><td><div class="item-name">${a.name}</div><div class="item-desc">${a.desc}</div><div class="item-spec">${a.spec}</div></td><td>${TA[a.type]}</td><td><div class="plat">${platH}</div></td><td class="hrs-cell">~${a.hrs}h</td><td class="price-usd">${fu(p)}</td><td class="price-mxn">${fm(p)}</td></tr>`;
+  });
+
+  // Canal y marca personal
+  const cT = document.getElementById('canal-tbody');
+  DB.internal.canal.forEach(ca => {
+    const p = getPrice(ca.hrs);
+    cT.innerHTML += `<tr><td><div class="item-name">${ca.name}</div><div class="item-desc">${ca.desc}</div><div class="item-spec">${ca.spec}</div></td><td><div class="plat">${PT.all}</div></td><td class="hrs-cell">~${ca.hrs}h</td><td class="price-usd">${fu(p)}</td><td class="price-mxn">${fm(p)}</td></tr>`;
+  });
+
+  // Packs
+  const pg = document.getElementById('pack-grid');
+  DB.internal.packs.forEach(pk => {
+    const fullP = getPrice(pk.hrs_total);
+    const discP = fullP * (1 - pk.discount_perc / 100);
+    const save = (fullP - discP).toFixed(0);
+    pg.innerHTML += `<div class="pack-card${pk.discount_perc > 20 ? ' featured' : ''}"><div class="pack-name">${pk.name}</div><div class="pack-items">${pk.items.map(i => `<span>${i}</span>`).join('')}</div><div class="pack-price"><div><div class="pack-usd">${fu(discP)} USD</div><div class="pack-mxn">${fm(discP)}</div></div><div class="pack-save">~$${save} ahorro</div></div></div>`;
+  });
+
+  // Ilustración por acabado (boceto, flats, cell, render…)
+  const iNiv = document.getElementById('ilus-niveles-tbody');
+  DB.services.filter(s => s.cat === 'ilustracion_acabado').forEach(s => renderRow(iNiv, s));
+
+  // Ilustración por tipo de proyecto (fanart, stickers, personaje…)
+  const iTip = document.getElementById('ilus-tipos-tbody');
+  DB.services.filter(s => s.cat === 'ilustracion_proyecto').forEach(s => renderRow(iTip, s));
+
+  // Redes sociales
+  const socT = document.getElementById('social-tbody');
+  DB.services.filter(s => s.cat === 'social').forEach(s => renderRow(socT, s));
+
+  // Editorial completo
+  const edFT = document.getElementById('editorial-full-tbody');
+  DB.services.filter(s => s.cat === 'editorial').forEach(s => renderRow(edFT, s));
+
+  // Filmmaking + Motion
+  const filmT = document.getElementById('film-tbody');
+  DB.services.filter(s => s.cat === 'motion' || s.cat === 'filmmaking').forEach(s => renderRow(filmT, s));
+
+  // Fotografía
+  const fotoT = document.getElementById('foto-tbody');
+  DB.services.filter(s => s.cat === 'fotografia').forEach(s => renderRow(fotoT, s));
+
+  // Minor Grids
+  renderCards(DB.internal.minor.merch, 'merch-grid', 'merch');
+  renderCards(DB.internal.minor.identidad, 'identidad-grid', 'identidad');
+  renderCards(DB.internal.minor.digital, 'digital-grid', 'digital');
+  renderCards(DB.internal.minor.editorial, 'editorial-grid', 'editorial');
+  renderCards(DB.internal.minor.contenido, 'contenido-grid', 'contenido');
+
+  // Consultoría
+  const cg = document.getElementById('consult-grid');
+  DB.internal.consultoria.forEach(c => {
+    const p = getPrice(c.hrs);
+    cg.innerHTML += `<div class="consult-card${c.highlight ? ' highlight' : ''}"><div class="consult-name">${c.name}</div><div class="consult-desc">${c.desc}</div><div class="consult-price">${fu(p)} USD</div><div class="consult-mxn">${fm(p)}</div></div>`;
+  });
+}
+
+function renderCards(data, id, cat) {
+  const c = document.getElementById(id);
+  if(!c) return;
+  const colorMap = {
+    merch: 'var(--c-merch)', identidad: 'var(--c-identidad)',
+    digital: 'var(--c-fotografia)', editorial: 'var(--c-editorial)',
+    contenido: 'var(--c-infografias)'
+  };
+  const color = colorMap[cat] || 'var(--accent-blue)';
+  data.forEach(d => {
+    const p = getPrice(d.hrs);
+    c.innerHTML += `<div class="minor-card"><div class="minor-cat" style="color:${color}">${d.cat || 'Servicio'}</div><div class="minor-name">${d.name}</div><div class="minor-desc">${d.desc || ''}</div><div class="minor-footer"><div><div class="minor-price" style="color:${color}">${fu(p)} USD</div><div class="minor-meta">${fm(p)}</div></div><div class="minor-meta">~${d.hrs}h</div></div></div>`;
+  });
+}
+
+function getAllItems() {
+  const items = [];
+  DB.internal.overlays.forEach(o => {
+    items.push({ id: o.id + 'a', name: o.name + ' (anim)', price: getPrice(o.hrs * (o.multiplier_anim || 1.25)) });
+    items.push({ id: o.id + 's', name: o.name + ' (estat)', price: getPrice(o.hrs) });
+  });
+  DB.internal.alertas.forEach(a => items.push({ id: a.id, name: a.name, price: getPrice(a.hrs) }));
+  DB.internal.canal.forEach(ca => items.push({ id: ca.id, name: ca.name, price: getPrice(ca.hrs) }));
+  DB.services.forEach((s, idx) => items.push({ id: 'srv' + idx, name: s.name, price: (typeof s.price === 'number') ? s.price : getPrice(s.hrs) }));
+  
+  Object.entries(DB.internal.minor).forEach(([cat, data]) => {
+    data.forEach((m, idx) => items.push({ id: `min-${cat}-${idx}`, name: m.name, price: getPrice(m.hrs) }));
+  });
+
+  DB.internal.consultoria.forEach((c, idx) => items.push({ id: 'con' + idx, name: c.name, price: getPrice(c.hrs) }));
+  return items;
+}
+
+function buildCalc(filter) {
+  const el = document.getElementById('calc-items');
+  el.innerHTML = '';
+  const all = getAllItems();
+  const groups = [
+    { g: 'Overlays (animado)', items: all.filter(i => i.id.endsWith('a') && i.id.startsWith('ov')) },
+    { g: 'Overlays (estático)', items: all.filter(i => i.id.endsWith('s') && i.id.startsWith('ov')) },
+    { g: 'Alertas', items: all.filter(i => i.id.startsWith('al')) },
+    { g: 'Canal y marca personal', items: all.filter(i => i.id.startsWith('ca')) }
+  ];
+
+  const catGroups = {};
+  DB.services.forEach((s, idx) => {
+    if (!catGroups[s.cat]) catGroups[s.cat] = [];
+    catGroups[s.cat].push(all.find(i => i.id === 'srv' + idx));
+  });
+
+  Object.entries(catGroups).forEach(([cat, items]) => {
+    groups.push({ g: DB.categories[cat] || cat, items });
+  });
+
+  Object.entries(DB.internal.minor).forEach(([cat, data]) => {
+    groups.push({ g: DB.categories[cat] || cat, items: data.map((m, idx) => all.find(i => i.id === `min-${cat}-${idx}`)) });
+  });
+
+  groups.push({ g: 'Consultoría', items: all.filter(i => i.id.startsWith('con')) });
+
+  groups.forEach((group, index) => {
+    const filtered = group.items.filter(i => !filter || i.name.toLowerCase().includes(filter.toLowerCase()));
+    if (!filtered.length) return;
+    const gid = 'group-' + index;
+    const isActive = filter ? ' active' : '';
+    el.innerHTML += `<div class="calc-group-title${isActive}" onclick="toggleCalcGroup('${gid}', this)">${group.g}</div>
+      <div id="${gid}" class="calc-group-items${isActive}">
+        ${filtered.map(item => `<div class="calc-row"><label><input type="checkbox" onchange="saveCheck('${item.id}',this.checked);recalc()" ${checkedState[item.id] ? 'checked' : ''}> ${item.name}</label><span class="calc-price-tag">${fu(item.price)}</span></div>`).join('')}
+      </div>`;
+  });
+}
+
+function toggleCalcGroup(id, el) {
+  const t = document.getElementById(id);
+  if(t) { t.classList.toggle('active'); el.classList.toggle('active'); }
+}
+
+function saveCheck(id, val) { checkedState[id] = val; }
+function filterCalc(v) { buildCalc(v); }
+
+function recalc() {
+  let base = 0; const sel = [];
+  getAllItems().forEach(i => {
+    if (checkedState[i.id]) { base += i.price; sel.push(i); }
+  });
+
+  let mult = 1;
+  if (document.getElementById('mod-urgencia').checked) mult += 0.5;
+  if (document.getElementById('mod-complejidad').checked) mult += 0.3;
+  if (document.getElementById('mod-comercial').checked) mult += 0.3;
+  if (document.getElementById('mod-exclusiva').checked) mult += 1.0;
+  if (document.getElementById('mod-descuentoamigo').checked) mult -= 0.1;
+  let total = base * mult;
+  if (document.getElementById('mod-fuentes').checked) total += 30;
+
+  const si = document.getElementById('summary-items');
+  si.innerHTML = sel.length ? sel.map(s => `<div class="summary-item"><span>${s.name}</span><span>${fu(s.price)}</span></div>`).join('') : '<div class="summary-empty">Sin piezas seleccionadas</div>';
+  document.getElementById('total-usd').textContent = fu(total) + ' USD';
+  document.getElementById('total-mxn').textContent = fm(total);
+}
+
+function clearAll() {
+  Object.keys(checkedState).forEach(k => delete checkedState[k]);
+  ['mod-urgencia', 'mod-complejidad', 'mod-fuentes', 'mod-comercial', 'mod-exclusiva'].forEach(id => document.getElementById(id).checked = false);
+  document.getElementById('calc-search').value = '';
+  buildCalc(''); recalc();
+}
+
+function copySummary() {
+  const sel = [];
+  getAllItems().forEach(i => { if (checkedState[i.id]) sel.push(`· ${i.name} — ${fu(i.price)} USD`); });
+  if (!sel.length) { alert('Selecciona al menos una pieza.'); return; }
+  const mods = [];
+  if (document.getElementById('mod-urgencia').checked) mods.push('· Urgencia +50%');
+  if (document.getElementById('mod-complejidad').checked) mods.push('· Alta complejidad +30%');
+  if (document.getElementById('mod-fuentes').checked) mods.push('· Archivos fuente +$30 USD');
+  if (document.getElementById('mod-comercial').checked) mods.push('· Licencia comercial +30%');
+  if (document.getElementById('mod-exclusiva').checked) mods.push('· Licencia exclusiva +100%');
+  if (document.getElementById('mod-descuentoamigo').checked) mods.push('. Descuento Amigo -10%');
+  const t = document.getElementById('total-usd').textContent;
+  const tm = document.getElementById('total-mxn').textContent;
+  const lines = ['COTIZACIÓN\n', ...sel, ...(mods.length ? ['\nModificadores:', ...mods] : []), '\nTOTAL: ' + t + ' / ' + tm, '\n*Incluye 2 revisiones. Precios de referencia, sujetos a ajuste.'];
+  navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    const m = document.getElementById('copied-msg'); m.style.display = 'block'; setTimeout(() => m.style.display = 'none', 2000);
+  });
+}
+
+function generatePDF() {
+  const sel = [];
+  getAllItems().forEach(i => { if (checkedState[i.id]) sel.push(i); });
+  if (!sel.length) { alert('Selecciona al menos una pieza.'); return; }
+  
+  const mods = [];
+  if (document.getElementById('mod-urgencia').checked) mods.push('Recargo por Urgencia (+50%)');
+  if (document.getElementById('mod-complejidad').checked) mods.push('Alta Complejidad (+30%)');
+  if (document.getElementById('mod-fuentes').checked) mods.push('Entrega de Archivos Fuente ($30 USD)');
+  if (document.getElementById('mod-comercial').checked) mods.push('Licencia Comercial (+30%)');
+  if (document.getElementById('mod-exclusiva').checked) mods.push('Licencia Exclusiva (+100%)');
+  if (document.getElementById('mod-descuentoamigo').checked) mods.push('Descuento Amigo (-10%)');
+
+  const allServices = [
+    ...DB.services,
+    ...Object.values(DB.internal.minor).flat(),
+    ...DB.internal.consultoria,
+    ...DB.internal.overlays,
+    ...DB.internal.alertas,
+    ...DB.internal.canal,
+  ];
+
+  document.getElementById('pdf-date').textContent = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+  document.getElementById('pdf-id').textContent = Math.random().toString(36).substr(2, 5).toUpperCase();
+
+  const body = document.getElementById('pdf-body');
+  body.innerHTML = sel.map(s => {
+    // Limpiar sufijos como " (anim)" o " (estat)" para buscar el servicio base
+    const baseName = s.name.replace(/ \((anim|estat)\)$/, '');
+    const full = allServices.find(sv => sv.name === baseName || sv.name === s.name);
+    const includesHtml = full?.includes
+      ? `<div style="margin-top:6px; font-size:11px; color:#666; line-height:1.7">${full.includes.map(i => '· ' + i).join('<br>')}</div>`
+      : (full?.desc ? `<div style="margin-top:4px; font-size:11px; color:#999">${full.desc}</div>` : '');
+    const price = (typeof s.price === 'number' && !isNaN(s.price)) ? s.price : 0;
+    return `<tr>
+      <td>
+        <div style="font-weight:500">${s.name}</div>
+        ${includesHtml}
+      </td>
+      <td style="text-align:right; vertical-align:top">${fu(price)}</td>
+    </tr>`;
+  }).join('');
+
+  if (mods.length) body.innerHTML += `<tr><td colspan="2" style="background:#fdf2f2; font-size:11px; padding:10px; border-radius:6px;"><strong>Modificadores aplicados:</strong><br>${mods.join('<br>')}</td></tr>`;
+
+  document.getElementById('pdf-total-usd').textContent = document.getElementById('total-usd').textContent;
+  document.getElementById('pdf-total-mxn').textContent = document.getElementById('total-mxn').textContent;
+  window.print();
+}
+
+function goTo(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(id);
+  if (target) target.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
