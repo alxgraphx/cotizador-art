@@ -15,7 +15,7 @@
 </head>
 <body>
 <div class="page">
-  <a href="Referencia Interna de Precios.html" class="view-switch">
+  <a href="Referencia_Interna_de_Precios.html" class="view-switch">
     <span>Visión Interna</span>
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
   </a>
@@ -105,7 +105,7 @@ function renderFilters() {
   const bar = document.querySelector('.filter-bar');
   const cats = Object.entries(DB.categories);
   bar.innerHTML = `<button class="filter-btn ${currentFilter === 'all' ? 'active' : ''}" onclick="setFilter('all', this)">Todos</button>` + 
-    cats.map(([id, name]) => `<button class="filter-btn ${currentFilter === id ? 'active' : ''}" onclick="setFilter('${id}', this)">${name}</button>`).join('');
+    cats.map(([id, name]) => `<button class="filter-btn ${currentFilter === id ? 'active' : ''}" data-cat="${id}" onclick="setFilter('${id}', this)">${name}</button>`).join('');
 }
 
 function setFilter(cat, btn) {
@@ -121,6 +121,8 @@ function getFlattenedServices() {
   Object.entries(DB.internal.minor).forEach(([catKey, items]) => {
     items.forEach(i => all.push({ ...i, cat: catKey }));
   });
+  // Include consultoría
+  DB.internal.consultoria.forEach(i => all.push({ ...i, cat: 'consultoria' }));
   return all;
 }
 
@@ -139,14 +141,14 @@ function renderServices() {
     ? s.price
     : getPrice(s.hrs);
     return `
-    <div class="service-card${s.featured ? ' featured' : ''}">
-	  <div class="service-name">${s.name}</div>
-      <span class="service-cat">${DB.categories[s.cat] || s.cat}</span>
+    <div class="service-card${s.featured ? ' featured' : ''}" data-cat="${s.cat}">
+      <div class="service-name">${s.name}</div>
+      <span class="service-cat" data-cat="${s.cat}">${DB.categories[s.cat] || s.cat}</span>
       <div class="service-desc">${s.desc || ''}</div>
       ${s.includes ? `<ul class="includes">${s.includes.map(i => `<li>${i}</li>`).join('')}</ul>` : ''}
       <div class="price-row">
         <div><div class="price-usd">${fu(p)} USD</div><div class="price-mxn">${fm(p)}</div></div>
-        ${typeof s.price !== "number" ? `<span class="hrs-tag">~${s.hrs} hrs</span>` : ''}
+        ${typeof s.price !== "number" ? `<span class="hrs-tag" data-cat="${s.cat}">~${s.hrs} hrs</span>` : ''}
       </div>
     </div>`;
   }).join('');

@@ -559,6 +559,73 @@ body {
 }
 
 /* ============================================================
+   COLORES POR CATEGORÍA
+   ============================================================ */
+
+/* Helper: cada categoría sobreescribe color del badge y borde del hover */
+.service-cat[data-cat="branding"]              { color: var(--c-branding);              border-color: color-mix(in srgb, var(--c-branding) 35%, transparent); }
+.service-cat[data-cat="consultoria"]           { color: var(--c-consultoria);            border-color: color-mix(in srgb, var(--c-consultoria) 35%, transparent); }
+.service-cat[data-cat="ilustracion_proyecto"]  { color: var(--c-ilustracion-proyecto);   border-color: color-mix(in srgb, var(--c-ilustracion-proyecto) 35%, transparent); }
+.service-cat[data-cat="ilustracion_acabado"]   { color: var(--c-ilustracion-acabado);    border-color: color-mix(in srgb, var(--c-ilustracion-acabado) 35%, transparent); }
+.service-cat[data-cat="social"]                { color: var(--c-redes);                  border-color: color-mix(in srgb, var(--c-redes) 35%, transparent); }
+.service-cat[data-cat="contenido"]             { color: var(--c-infografias);            border-color: color-mix(in srgb, var(--c-infografias) 35%, transparent); }
+.service-cat[data-cat="editorial"]             { color: var(--c-editorial);              border-color: color-mix(in srgb, var(--c-editorial) 35%, transparent); }
+.service-cat[data-cat="motion"]                { color: var(--c-motion);                 border-color: color-mix(in srgb, var(--c-motion) 35%, transparent); }
+.service-cat[data-cat="filmmaking"]            { color: var(--c-filmmaking);             border-color: color-mix(in srgb, var(--c-filmmaking) 35%, transparent); }
+.service-cat[data-cat="streamer"]              { color: var(--c-streamers);              border-color: color-mix(in srgb, var(--c-streamers) 35%, transparent); }
+.service-cat[data-cat="fotografia"]            { color: var(--c-fotografia);             border-color: color-mix(in srgb, var(--c-fotografia) 35%, transparent); }
+.service-cat[data-cat="merch"]                 { color: var(--c-merch);                  border-color: color-mix(in srgb, var(--c-merch) 35%, transparent); }
+.service-cat[data-cat="identidad"]             { color: var(--c-identidad);              border-color: color-mix(in srgb, var(--c-identidad) 35%, transparent); }
+.service-cat[data-cat="digital"]               { color: var(--c-fotografia);             border-color: color-mix(in srgb, var(--c-fotografia) 35%, transparent); }
+
+/* El borde energético del hover también toma el color de la categoría */
+.service-card[data-cat="branding"]:hover::before             { background: linear-gradient(90deg, var(--c-branding), var(--accent-purple), var(--c-branding)); background-size: 300% 300%; }
+.service-card[data-cat="consultoria"]:hover::before          { background: linear-gradient(90deg, var(--c-consultoria), var(--accent-purple), var(--c-consultoria)); background-size: 300% 300%; }
+.service-card[data-cat="ilustracion_proyecto"]:hover::before { background: linear-gradient(90deg, var(--c-ilustracion-proyecto), var(--c-ilustracion-acabado), var(--c-ilustracion-proyecto)); background-size: 300% 300%; }
+.service-card[data-cat="ilustracion_acabado"]:hover::before  { background: linear-gradient(90deg, var(--c-ilustracion-acabado), var(--c-ilustracion-proyecto), var(--c-ilustracion-acabado)); background-size: 300% 300%; }
+.service-card[data-cat="social"]:hover::before               { background: linear-gradient(90deg, var(--c-redes), var(--accent-blue), var(--c-redes)); background-size: 300% 300%; }
+.service-card[data-cat="contenido"]:hover::before            { background: linear-gradient(90deg, var(--c-infografias), var(--c-redes), var(--c-infografias)); background-size: 300% 300%; }
+.service-card[data-cat="editorial"]:hover::before            { background: linear-gradient(90deg, var(--c-editorial), var(--accent-purple), var(--c-editorial)); background-size: 300% 300%; }
+.service-card[data-cat="motion"]:hover::before               { background: linear-gradient(90deg, var(--c-motion), var(--accent-blue), var(--c-motion)); background-size: 300% 300%; }
+.service-card[data-cat="filmmaking"]:hover::before           { background: linear-gradient(90deg, var(--c-filmmaking), var(--accent-purple), var(--c-filmmaking)); background-size: 300% 300%; }
+.service-card[data-cat="streamer"]:hover::before             { background: linear-gradient(90deg, var(--c-streamers), var(--c-editorial), var(--c-streamers)); background-size: 300% 300%; }
+.service-card[data-cat="fotografia"]:hover::before           { background: linear-gradient(90deg, var(--c-fotografia), var(--accent-blue), var(--c-fotografia)); background-size: 300% 300%; }
+.service-card[data-cat="merch"]:hover::before                { background: linear-gradient(90deg, var(--c-merch), var(--accent-purple), var(--c-merch)); background-size: 300% 300%; }
+.service-card[data-cat="identidad"]:hover::before            { background: linear-gradient(90deg, var(--c-identidad), var(--accent-purple), var(--c-identidad)); background-size: 300% 300%; }
+.service-card[data-cat="digital"]:hover::before              { background: linear-gradient(90deg, var(--c-fotografia), var(--accent-blue), var(--c-fotografia)); background-size: 300% 300%; }
+
+/* Filtros activos también reciben su color */
+.filter-btn.active[data-cat="branding"]             { color: var(--c-branding);             background: color-mix(in srgb, var(--c-branding) 12%, transparent);             border-color: color-mix(in srgb, var(--c-branding) 40%, transparent); }
+.filter-btn.active[data-cat="ilustracion_proyecto"] { color: var(--c-ilustracion-proyecto);  background: color-mix(in srgb, var(--c-ilustracion-proyecto) 12%, transparent);  border-color: color-mix(in srgb, var(--c-ilustracion-proyecto) 40%, transparent); }
+.filter-btn.active[data-cat="ilustracion_acabado"]  { color: var(--c-ilustracion-acabado);   background: color-mix(in srgb, var(--c-ilustracion-acabado) 12%, transparent);   border-color: color-mix(in srgb, var(--c-ilustracion-acabado) 40%, transparent); }
+.filter-btn.active[data-cat="social"]               { color: var(--c-redes);                 background: color-mix(in srgb, var(--c-redes) 12%, transparent);                 border-color: color-mix(in srgb, var(--c-redes) 40%, transparent); }
+.filter-btn.active[data-cat="contenido"]            { color: var(--c-infografias);           background: color-mix(in srgb, var(--c-infografias) 12%, transparent);           border-color: color-mix(in srgb, var(--c-infografias) 40%, transparent); }
+.filter-btn.active[data-cat="editorial"]            { color: var(--c-editorial);             background: color-mix(in srgb, var(--c-editorial) 12%, transparent);             border-color: color-mix(in srgb, var(--c-editorial) 40%, transparent); }
+.filter-btn.active[data-cat="motion"]               { color: var(--c-motion);                background: color-mix(in srgb, var(--c-motion) 12%, transparent);                border-color: color-mix(in srgb, var(--c-motion) 40%, transparent); }
+.filter-btn.active[data-cat="filmmaking"]           { color: var(--c-filmmaking);            background: color-mix(in srgb, var(--c-filmmaking) 12%, transparent);            border-color: color-mix(in srgb, var(--c-filmmaking) 40%, transparent); }
+.filter-btn.active[data-cat="streamer"]             { color: var(--c-streamers);             background: color-mix(in srgb, var(--c-streamers) 12%, transparent);             border-color: color-mix(in srgb, var(--c-streamers) 40%, transparent); }
+.filter-btn.active[data-cat="fotografia"]           { color: var(--c-fotografia);            background: color-mix(in srgb, var(--c-fotografia) 12%, transparent);            border-color: color-mix(in srgb, var(--c-fotografia) 40%, transparent); }
+.filter-btn.active[data-cat="merch"]                { color: var(--c-merch);                 background: color-mix(in srgb, var(--c-merch) 12%, transparent);                 border-color: color-mix(in srgb, var(--c-merch) 40%, transparent); }
+.filter-btn.active[data-cat="identidad"]            { color: var(--c-identidad);             background: color-mix(in srgb, var(--c-identidad) 12%, transparent);             border-color: color-mix(in srgb, var(--c-identidad) 40%, transparent); }
+.filter-btn.active[data-cat="consultoria"]          { color: var(--c-consultoria);           background: color-mix(in srgb, var(--c-consultoria) 12%, transparent);           border-color: color-mix(in srgb, var(--c-consultoria) 40%, transparent); }
+.filter-btn.active[data-cat="digital"]              { color: var(--c-fotografia);            background: color-mix(in srgb, var(--c-fotografia) 12%, transparent);            border-color: color-mix(in srgb, var(--c-fotografia) 40%, transparent); }
+
+.hrs-tag[data-cat="branding"]             { border-color: var(--c-branding);            color: var(--c-branding); }
+.hrs-tag[data-cat="consultoria"]          { border-color: var(--c-consultoria);          color: var(--c-consultoria); }
+.hrs-tag[data-cat="ilustracion_proyecto"] { border-color: var(--c-ilustracion-proyecto); color: var(--c-ilustracion-proyecto); }
+.hrs-tag[data-cat="ilustracion_acabado"]  { border-color: var(--c-ilustracion-acabado);  color: var(--c-ilustracion-acabado); }
+.hrs-tag[data-cat="social"]               { border-color: var(--c-redes);                color: var(--c-redes); }
+.hrs-tag[data-cat="contenido"]            { border-color: var(--c-infografias);          color: var(--c-infografias); }
+.hrs-tag[data-cat="editorial"]            { border-color: var(--c-editorial);            color: var(--c-editorial); }
+.hrs-tag[data-cat="motion"]               { border-color: var(--c-motion);               color: var(--c-motion); }
+.hrs-tag[data-cat="filmmaking"]           { border-color: var(--c-filmmaking);           color: var(--c-filmmaking); }
+.hrs-tag[data-cat="streamer"]             { border-color: var(--c-streamers);            color: var(--c-streamers); }
+.hrs-tag[data-cat="fotografia"]           { border-color: var(--c-fotografia);           color: var(--c-fotografia); }
+.hrs-tag[data-cat="merch"]                { border-color: var(--c-merch);                color: var(--c-merch); }
+.hrs-tag[data-cat="identidad"]            { border-color: var(--c-identidad);            color: var(--c-identidad); }
+.hrs-tag[data-cat="digital"]              { border-color: var(--c-fotografia);           color: var(--c-fotografia); }
+
+/* ============================================================
    IMPRESION
    ============================================================ */
 @media print {
